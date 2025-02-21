@@ -1,45 +1,110 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	clue := make(map[rune][]rune)
-	clue['b'] = []rune{'o', 'b'}
-	clue['o'] = []rune{'y', 'b'}
-	clue['y'] = []rune{' ', 'b'}
-	clue['g'] = []rune{'i', 'g'}
-	clue['i'] = []rune{'r', 'g'}
-	clue['r'] = []rune{'l', 'g'}
-	clue['l'] = []rune{' ', 'g'}
+	var input string
+	fmt.Scan(&input)
 
-	var str string
-	fmt.Scan(&str)
-
-	var str_in_rune []rune
-	for _, c := range str {
-		str_in_rune = append(str_in_rune, c)
+	// 判断数据类型
+	typ := 0 // 0表示整数，1表示小数，2表示分数，3表示百分数
+	var v_input []byte
+	for i := 0; i < len(input); i++ {
+		switch input[i] {
+		case '/':
+			typ = 1
+		case '.':
+			typ = 2
+		case '%':
+			typ = 3
+		}
+		v_input = append(v_input, input[i])
 	}
-	str_in_rune = append(str_in_rune, '.')
 
-	boy_count, girl_count := 0, 0
-	for i := 0; i < len(str); i++ {
-		c, next := str_in_rune[i], str_in_rune[i+1]
-		if c != '.' {
-			info := clue[c]
-			expect, kind := info[0], info[1]
-			if next != expect {
-				// 统计
-				if kind == 'b' {
-					boy_count += 1
+	switch typ {
+	case 0: // 整数
+		reverse_num(v_input)
+	case 1: // 分数
+		if v_input[0] == '0' {
+			fmt.Print(0)
+		} else {
+			var numerator []byte
+			var denominator []byte
+			is_numerator := true
+			for i := 0; i < len(v_input); i++ {
+				if v_input[i] == '/' {
+					is_numerator = false
 				} else {
-					girl_count += 1
+					if is_numerator {
+						numerator = append(numerator, v_input[i])
+					} else {
+						denominator = append(denominator, v_input[i])
+					}
+				}
+			}
+			reverse_num(numerator)
+			fmt.Printf("%c", '/')
+			reverse_num(denominator)
+		}
+	case 2: // 小数
+		var integer []byte
+		var decimal []byte
+		is_integer := true
+		only_zero := true
+		for i := 0; i < len(v_input); i++ {
+			if v_input[i] == '.' {
+				is_integer = false
+			} else {
+				if is_integer {
+					integer = append(integer, v_input[i])
+				} else {
+					if v_input[i] != '0' {
+						only_zero = false
+					}
+					decimal = append(decimal, v_input[i])
 				}
 			}
 		}
+		first_num := 0
+		for i := 0; i < len(decimal); i++ {
+			if decimal[i] != '0' {
+				first_num = i
+				break
+			}
+		}
+		reverse_num(integer)
+		fmt.Printf("%c", '.')
+		if only_zero {
+			fmt.Printf("0")
+		} else {
+			reverse_num(decimal[first_num:])
+		}
+	case 3: // 百分数
+		reverse_num(v_input[:len(v_input)-1])
+		fmt.Printf("%c", '%')
 	}
+	fmt.Println()
+}
 
-	fmt.Println(boy_count)
-	fmt.Println(girl_count)
+func reverse_num(input []byte) {
+	if len(input) == 1 {
+		fmt.Printf("%c", input[0])
+	} else {
+		for i := 0; i < len(input)/2; i++ {
+			input[i], input[len(input)-i-1] = input[len(input)-i-1], input[i]
+		}
+		meet_not_zero := false
+		for i := 0; i < len(input); i++ {
+			if input[i] == '0' && !meet_not_zero {
+				// 不输出
+			} else {
+				meet_not_zero = true
+				fmt.Printf("%c", input[i])
+			}
+		}
+	}
 }
 
 func num_len(num int) int {
