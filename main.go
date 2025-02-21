@@ -4,79 +4,47 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
-	var n int
-	fmt.Scan(&n)
+	codex := make(map[rune]int, 0)
+	codex[' '] = 1
+	codex['a'] = 1
+	codex['b'] = 2
+	codex['c'] = 3
+	codex['d'] = 1
+	codex['e'] = 2
+	codex['f'] = 3
+	codex['g'] = 1
+	codex['h'] = 2
+	codex['i'] = 3
+	codex['j'] = 1
+	codex['k'] = 2
+	codex['l'] = 3
+	codex['m'] = 1
+	codex['n'] = 2
+	codex['o'] = 3
+	codex['p'] = 1
+	codex['q'] = 2
+	codex['r'] = 3
+	codex['s'] = 4
+	codex['t'] = 1
+	codex['u'] = 2
+	codex['v'] = 3
+	codex['w'] = 1
+	codex['x'] = 2
+	codex['y'] = 3
+	codex['z'] = 4
 
-	var str string
-	fmt.Scan(&str)
-
-	var answers []string
 	scanner := bufio.NewScanner(os.Stdin)
-	for i := 0; i < n; i++ {
-		if scanner.Scan() {
-			input := scanner.Text()
-			params := strings.Fields(input)
-			switch params[0] {
-			case "1":
-				str = str + params[1]
-				answers = append(answers, str)
-			case "2":
-				start, _ := strconv.Atoi(params[1])
-				length, _ := strconv.Atoi(params[2])
-				end := start + length
+	scanner.Scan()
+	message := scanner.Text()
 
-				if end >= len(str) {
-					str = str[start:]
-				} else {
-					str = str[start:end]
-				}
-				answers = append(answers, str)
-			case "3":
-				start, _ := strconv.Atoi(params[1])
-				if start >= len(str) {
-					str = str + params[2]
-				} else {
-					str = str[0:start] + params[2] + str[start:]
-				}
-				answers = append(answers, str)
-			case "4":
-				find := -1
-				target_str := params[1]
-				target_len := len(target_str)
-				str_len := len(str)
-
-				if str_len < target_len {
-					find = -1
-				} else {
-					for i := 0; len(str)-i >= target_len; i++ {
-						end := i + target_len
-						if end >= str_len {
-							if str[i:] == target_str {
-								find = i
-								break
-							}
-						} else {
-							if str[i:end] == target_str {
-								find = i
-								break
-							}
-						}
-					}
-				}
-
-				answers = append(answers, strconv.Itoa(find))
-			}
-		}
+	count := 0
+	for _, c := range message {
+		count += codex[c]
 	}
-
-	for _, str := range answers {
-		fmt.Println(str)
-	}
+	fmt.Println(count)
 }
 
 func num_len(num int) int {
