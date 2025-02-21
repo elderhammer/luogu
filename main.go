@@ -3,51 +3,43 @@ package main
 import "fmt"
 
 func main() {
-	var n int
-	fmt.Scan(&n)
+	clue := make(map[rune][]rune)
+	clue['b'] = []rune{'o', 'b'}
+	clue['o'] = []rune{'y', 'b'}
+	clue['y'] = []rune{' ', 'b'}
+	clue['g'] = []rune{'i', 'g'}
+	clue['i'] = []rune{'r', 'g'}
+	clue['r'] = []rune{'l', 'g'}
+	clue['l'] = []rune{' ', 'g'}
 
 	var str string
 	fmt.Scan(&str)
 
-	i, times, count := 0, 1, 0
-	for i < n-1 {
-		step := 1
-		if str[i] == 'V' && str[i+1] == 'K' {
-			count += 1
-			step = 2
-		} else if str[i] == 'K' && str[i+1] == 'K' {
-			if times > 0 {
-				// str[i] = 'V'
-				times -= 1
-				count += 1
-			}
-			step = 2
-		} else if str[i] == 'V' && str[i+1] == 'V' {
-			if i+2 >= n { // 越界了
-				if times > 0 {
-					// str[i+1] = 'K'
-					times -= 1
-					count += 1
-				}
-				step = 2
-			} else { // 后面还有元素
-				if str[i+2] == 'K' {
-					count += 1
-					step = 3
+	var str_in_rune []rune
+	for _, c := range str {
+		str_in_rune = append(str_in_rune, c)
+	}
+	str_in_rune = append(str_in_rune, '.')
+
+	boy_count, girl_count := 0, 0
+	for i := 0; i < len(str); i++ {
+		c, next := str_in_rune[i], str_in_rune[i+1]
+		if c != '.' {
+			info := clue[c]
+			expect, kind := info[0], info[1]
+			if next != expect {
+				// 统计
+				if kind == 'b' {
+					boy_count += 1
 				} else {
-					if times > 0 {
-						// str[i+1] = 'K'
-						times -= 1
-						count += 1
-					}
-					step = 2
+					girl_count += 1
 				}
 			}
 		}
-		i += step
 	}
 
-	fmt.Println(count)
+	fmt.Println(boy_count)
+	fmt.Println(girl_count)
 }
 
 func num_len(num int) int {
