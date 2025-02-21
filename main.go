@@ -1,49 +1,52 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-)
+import "fmt"
 
 func main() {
-	codex := make(map[rune]int, 0)
-	codex[' '] = 1
-	codex['a'] = 1
-	codex['b'] = 2
-	codex['c'] = 3
-	codex['d'] = 1
-	codex['e'] = 2
-	codex['f'] = 3
-	codex['g'] = 1
-	codex['h'] = 2
-	codex['i'] = 3
-	codex['j'] = 1
-	codex['k'] = 2
-	codex['l'] = 3
-	codex['m'] = 1
-	codex['n'] = 2
-	codex['o'] = 3
-	codex['p'] = 1
-	codex['q'] = 2
-	codex['r'] = 3
-	codex['s'] = 4
-	codex['t'] = 1
-	codex['u'] = 2
-	codex['v'] = 3
-	codex['w'] = 1
-	codex['x'] = 2
-	codex['y'] = 3
-	codex['z'] = 4
+	var n int
+	fmt.Scan(&n)
 
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	message := scanner.Text()
+	var str string
+	fmt.Scan(&str)
 
-	count := 0
-	for _, c := range message {
-		count += codex[c]
+	i, times, count := 0, 1, 0
+	for i < n-1 {
+		step := 1
+		if str[i] == 'V' && str[i+1] == 'K' {
+			count += 1
+			step = 2
+		} else if str[i] == 'K' && str[i+1] == 'K' {
+			if times > 0 {
+				// str[i] = 'V'
+				times -= 1
+				count += 1
+			}
+			step = 2
+		} else if str[i] == 'V' && str[i+1] == 'V' {
+			if i+2 >= n { // 越界了
+				if times > 0 {
+					// str[i+1] = 'K'
+					times -= 1
+					count += 1
+				}
+				step = 2
+			} else { // 后面还有元素
+				if str[i+2] == 'K' {
+					count += 1
+					step = 3
+				} else {
+					if times > 0 {
+						// str[i+1] = 'K'
+						times -= 1
+						count += 1
+					}
+					step = 2
+				}
+			}
+		}
+		i += step
 	}
+
 	fmt.Println(count)
 }
 
