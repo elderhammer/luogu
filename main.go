@@ -1,91 +1,68 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"sort"
+	"strings"
 )
 
 func main() {
-	var input string
-	fmt.Scan(&input)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	input := scanner.Text()
 
-	// 判断数据类型
-	typ := 0 // 0表示整数，1表示小数，2表示分数，3表示百分数
-	var v_input []byte
-	for i := 0; i < len(input); i++ {
-		switch input[i] {
-		case '/':
-			typ = 1
-		case '.':
-			typ = 2
-		case '%':
-			typ = 3
+	codex := make(map[string]int)
+	codex["a"] = 1
+	codex["both"] = 2
+	codex["first"] = 1
+	codex["second"] = 2
+	codex["third"] = 3
+	codex["another"] = 1
+	codex["one"] = 1
+	codex["two"] = 2
+	codex["three"] = 3
+	codex["four"] = 4
+	codex["five"] = 5
+	codex["six"] = 6
+	codex["seven"] = 7
+	codex["eight"] = 8
+	codex["nine"] = 9
+	codex["ten"] = 10
+	codex["eleven"] = 11
+	codex["twelve"] = 12
+	codex["thirteen"] = 13
+	codex["fourteen"] = 14
+	codex["fifteen"] = 15
+	codex["sixteen"] = 16
+	codex["seventeen"] = 17
+	codex["eighteen"] = 18
+	codex["nineteen"] = 19
+	codex["twenty"] = 20
+
+	nums := []int{}
+	words := strings.Fields(input)
+	for i := 0; i < len(words); i++ {
+		num := codex[words[i]]
+		if num > 0 {
+			nums = append(nums, num*num)
 		}
-		v_input = append(v_input, input[i])
 	}
 
-	switch typ {
-	case 0: // 整数
-		reverse_num(v_input)
-	case 1: // 分数
-		if v_input[0] == '0' {
-			fmt.Print(0)
-		} else {
-			var numerator []byte
-			var denominator []byte
-			is_numerator := true
-			for i := 0; i < len(v_input); i++ {
-				if v_input[i] == '/' {
-					is_numerator = false
-				} else {
-					if is_numerator {
-						numerator = append(numerator, v_input[i])
-					} else {
-						denominator = append(denominator, v_input[i])
-					}
-				}
-			}
-			reverse_num(numerator)
-			fmt.Printf("%c", '/')
-			reverse_num(denominator)
-		}
-	case 2: // 小数
-		var integer []byte
-		var decimal []byte
-		is_integer := true
-		only_zero := true
-		for i := 0; i < len(v_input); i++ {
-			if v_input[i] == '.' {
-				is_integer = false
+	if len(nums) > 0 {
+		sort.Ints(nums)
+		for i := 0; i < len(nums); i++ {
+			if i == 0 {
+				fmt.Printf("%d", nums[i])
 			} else {
-				if is_integer {
-					integer = append(integer, v_input[i])
-				} else {
-					if v_input[i] != '0' {
-						only_zero = false
-					}
-					decimal = append(decimal, v_input[i])
-				}
+				fmt.Printf("%02d", nums[i])
 			}
 		}
-		first_num := 0
-		for i := 0; i < len(decimal); i++ {
-			if decimal[i] != '0' {
-				first_num = i
-				break
-			}
-		}
-		reverse_num(integer)
-		fmt.Printf("%c", '.')
-		if only_zero {
-			fmt.Printf("0")
-		} else {
-			reverse_num(decimal[first_num:])
-		}
-	case 3: // 百分数
-		reverse_num(v_input[:len(v_input)-1])
-		fmt.Printf("%c", '%')
+		fmt.Println()
+	} else {
+		fmt.Println(0)
 	}
-	fmt.Println()
 }
 
 func reverse_num(input []byte) {
