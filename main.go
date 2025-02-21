@@ -4,65 +4,34 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"sort"
-	"strings"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
-	input := scanner.Text()
+	comet := scanner.Text()
+	scanner.Scan()
+	team := scanner.Text()
 
-	codex := make(map[string]int)
-	codex["a"] = 1
-	codex["both"] = 2
-	codex["first"] = 1
-	codex["second"] = 2
-	codex["third"] = 3
-	codex["another"] = 1
-	codex["one"] = 1
-	codex["two"] = 2
-	codex["three"] = 3
-	codex["four"] = 4
-	codex["five"] = 5
-	codex["six"] = 6
-	codex["seven"] = 7
-	codex["eight"] = 8
-	codex["nine"] = 9
-	codex["ten"] = 10
-	codex["eleven"] = 11
-	codex["twelve"] = 12
-	codex["thirteen"] = 13
-	codex["fourteen"] = 14
-	codex["fifteen"] = 15
-	codex["sixteen"] = 16
-	codex["seventeen"] = 17
-	codex["eighteen"] = 18
-	codex["nineteen"] = 19
-	codex["twenty"] = 20
-
-	nums := []int{}
-	words := strings.Fields(input)
-	for i := 0; i < len(words); i++ {
-		num := codex[words[i]]
-		if num > 0 {
-			nums = append(nums, num*num)
-		}
+	comet_res := 1
+	for _, c := range comet {
+		comet_res *= a2i(c)
 	}
 
-	if len(nums) > 0 {
-		sort.Ints(nums)
-		for i := 0; i < len(nums); i++ {
-			if i == 0 {
-				fmt.Printf("%d", nums[i])
-			} else {
-				fmt.Printf("%02d", nums[i])
-			}
-		}
-		fmt.Println()
+	team_res := 1
+	for _, c := range team {
+		team_res *= a2i(c)
+	}
+
+	if comet_res%47 == team_res%47 {
+		fmt.Println("GO")
 	} else {
-		fmt.Println(0)
+		fmt.Println("STAY")
 	}
+}
+
+func a2i(a rune) int {
+	return int(a) - int('A') + 1
 }
 
 func reverse_num(input []byte) {
