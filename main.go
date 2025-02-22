@@ -11,44 +11,25 @@ func main() {
 	scanner.Scan()
 	input := scanner.Text()
 
-	// startTime := time.Now()
+	vars := [3]int{0, 0, 0}
 
-	vars := make(map[byte]byte)
-	var_order := []byte{}
-
-	last_var_name := input[0]
+	cur_name_idx := 0
 	for i := 0; i < len(input); i++ {
 		if input[i] == ':' { // 找出变量名
-			last_var_name = input[i-1]
-			vars[last_var_name] = '0'
-			var_order = append(var_order, last_var_name)
+			cur_name_idx = int(input[i-1] - 'a')
 		} else if input[i] == ';' {
 			if input[i-2] == '=' {
-				vars[last_var_name] = input[i-1]
+				value := input[i-1]
+				if '0' <= value && value <= '9' {
+					vars[cur_name_idx] = int(value - '0')
+				} else {
+					vars[cur_name_idx] = vars[int(value-'a')]
+				}
 			}
 		}
 	}
 
-	// fmt.Println(vars)
-	for i := 0; i < len(var_order); i++ {
-		var_name := var_order[i]
-		for {
-			value := vars[var_name]
-			if '0' <= value && value <= '9' {
-				fmt.Printf("%d ", value-'0'+0)
-				break
-			} else {
-				var_name = value
-			}
-		}
-	}
-
-	fmt.Println()
-
-	// endTime := time.Now()
-
-	// elapsedTime := endTime.Sub(startTime)
-	// fmt.Println("执行时间：", elapsedTime)
+	fmt.Printf("%d %d %d\n", vars[0], vars[1], vars[2])
 }
 
 func n2i(n rune) int {
