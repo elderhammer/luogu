@@ -9,25 +9,50 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
-	comet := scanner.Text()
-	scanner.Scan()
-	team := scanner.Text()
+	input := scanner.Text()
 
-	comet_res := 1
-	for _, c := range comet {
-		comet_res *= a2i(c)
+	// startTime := time.Now()
+
+	vars := make(map[byte]byte)
+	var_order := []byte{}
+
+	last_var_name := input[0]
+	for i := 0; i < len(input); i++ {
+		if input[i] == ':' { // 找出变量名
+			last_var_name = input[i-1]
+			vars[last_var_name] = '0'
+			var_order = append(var_order, last_var_name)
+		} else if input[i] == ';' {
+			if input[i-2] == '=' {
+				vars[last_var_name] = input[i-1]
+			}
+		}
 	}
 
-	team_res := 1
-	for _, c := range team {
-		team_res *= a2i(c)
+	// fmt.Println(vars)
+	for i := 0; i < len(var_order); i++ {
+		var_name := var_order[i]
+		for {
+			value := vars[var_name]
+			if '0' <= value && value <= '9' {
+				fmt.Printf("%d ", value-'0'+0)
+				break
+			} else {
+				var_name = value
+			}
+		}
 	}
 
-	if comet_res%47 == team_res%47 {
-		fmt.Println("GO")
-	} else {
-		fmt.Println("STAY")
-	}
+	fmt.Println()
+
+	// endTime := time.Now()
+
+	// elapsedTime := endTime.Sub(startTime)
+	// fmt.Println("执行时间：", elapsedTime)
+}
+
+func n2i(n rune) int {
+	return int(n) - int('0')
 }
 
 func a2i(a rune) int {
