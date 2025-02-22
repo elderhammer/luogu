@@ -4,32 +4,74 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
+	var q int
+	fmt.Scan(&q)
+
+	var str string
+	fmt.Scanln(&str)
+
 	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	input := scanner.Text()
-
-	vars := [3]int{0, 0, 0}
-
-	cur_name_idx := 0
-	for i := 0; i < len(input); i++ {
-		if input[i] == ':' { // 找出变量名
-			cur_name_idx = int(input[i-1] - 'a')
-		} else if input[i] == ';' {
-			if input[i-2] == '=' {
-				value := input[i-1]
-				if '0' <= value && value <= '9' {
-					vars[cur_name_idx] = int(value - '0')
+	for i := 0; i < q; i++ {
+		scanner.Scan()
+		input := scanner.Text()
+		ops := strings.Fields(input)
+		switch ops[0] {
+		case "1": // 后接插入
+			str = str + ops[1]
+			fmt.Printf("%s\n", str)
+		case "2":
+			start, _ := strconv.Atoi(ops[1])
+			length, _ := strconv.Atoi(ops[2])
+			end := start + length
+			if end >= len(str) {
+				str = str[start:]
+			} else {
+				str = str[start:end]
+			}
+			fmt.Printf("%s\n", str)
+		case "3":
+			start, _ := strconv.Atoi(ops[1])
+			if start >= len(str) {
+				str = str + ops[2]
+			} else {
+				str = str[:start] + ops[2] + str[start:]
+			}
+			fmt.Printf("%s\n", str)
+		case "4":
+			ans := -1
+			target_str := ops[1]
+			if len(target_str) > len(str) {
+				ans = -1
+			} else if len(target_str) == len(str) {
+				if target_str == str {
+					ans = 0
 				} else {
-					vars[cur_name_idx] = vars[int(value-'a')]
+					ans = -1
+				}
+			} else {
+				target_len := len(target_str)
+				for i := 0; i < len(str); i++ {
+					if i+target_len >= len(str) {
+						if str[i:] == target_str {
+							ans = i
+							break
+						}
+					} else {
+						if str[i:i+target_len] == target_str {
+							ans = i
+							break
+						}
+					}
 				}
 			}
+			fmt.Printf("%d\n", ans)
 		}
 	}
-
-	fmt.Printf("%d %d %d\n", vars[0], vars[1], vars[2])
 }
 
 func n2i(n rune) int {
