@@ -1,56 +1,36 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"math"
 )
 
 func main() {
-	var count [26]int
-	height := 0
-	scanner := bufio.NewScanner(os.Stdin)
-	for i := 0; i < 4; i++ {
-		scanner.Scan()
-		input := scanner.Text()
-		for j := 0; j < len(input); j++ {
-			if 'A' <= input[j] && input[j] <= 'Z' {
-				idx := input[j] - 'A'
-				count[idx] += 1
-				if count[idx] > height {
-					height = count[idx]
-				}
-			}
-		}
-	}
+	var (
+		x1 float64
+		y1 float64
+		x2 float64
+		y2 float64
+		x3 float64
+		y3 float64
+	)
 
-	cube := make_cube(height, 26)
-	for col := 0; col < 26; col++ {
-		for row := height - 1; row >= 0 && count[col] > 0; row -= 1 {
-			cube[row][col] = '*'
-			count[col] -= 1
-		}
-	}
+	fmt.Scan(&x1, &y1)
+	fmt.Scan(&x2, &y2)
+	fmt.Scan(&x3, &y3)
 
-	for row := 0; row < height; row++ {
-		for col := 0; col < 26; col++ {
-			if col == 25 {
-				fmt.Printf("%c", cube[row][col])
-			} else {
-				fmt.Printf("%c ", cube[row][col])
-			}
-		}
-		fmt.Println()
-	}
-	for col := 0; col < 26; col++ {
-		c := 'A' + col
-		if col == 25 {
-			fmt.Printf("%c", c)
-		} else {
-			fmt.Printf("%c ", c)
-		}
-	}
-	fmt.Println()
+	d_1 := dis(x1, y1, x2, y2)
+	d_2 := dis(x1, y1, x3, y3)
+	d_3 := dis(x2, y2, x3, y3)
+
+	fmt.Printf("%.2f\n", d_1+d_2+d_3)
+}
+
+func dis(x1 float64, y1 float64, x2 float64, y2 float64) float64 {
+	d_x := x2 - x1
+	d_y := y2 - y1
+
+	return math.Sqrt(d_x*d_x + d_y*d_y)
 }
 
 func make_cube(height int, width int) [][]rune {
