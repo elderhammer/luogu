@@ -5,22 +5,33 @@ import (
 )
 
 func main() {
-	var x int
-	var y int
-	fmt.Scan(&x, &y)
+	var n int
+	var m int
+	fmt.Scan(&n, &m)
 
-	var leap_years []int
-	for i := x; i <= y; i++ {
-		if (i%4 == 0 && i%100 != 0) || i%400 == 0 {
-			leap_years = append(leap_years, i)
+	ans := 0.0
+	for i := 0; i < n; i++ {
+		sum, min_score, max_score := 0.0, -1.0, 0.0
+		for j := 0; j < m; j++ {
+			score := 0.0
+			fmt.Scan(&score)
+
+			if min_score == -1.0 || min_score > score {
+				min_score = score
+			}
+			if max_score < score {
+				max_score = score
+			}
+			sum += score
+		}
+		sum -= min_score
+		sum -= max_score
+		sum /= float64(m - 2)
+		if sum > ans {
+			ans = sum
 		}
 	}
-
-	fmt.Println(len(leap_years))
-	for i := 0; i < len(leap_years); i++ {
-		fmt.Printf("%d ", leap_years[i])
-	}
-	fmt.Println()
+	fmt.Printf("%.2f\n", ans)
 }
 
 func make_cube(height int, width int) [][]rune {
