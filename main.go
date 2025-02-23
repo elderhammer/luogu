@@ -6,32 +6,17 @@ import (
 
 func main() {
 	var n int
-	var m int
-	fmt.Scan(&n, &m)
+	fmt.Scan(&n)
 
-	ans := 0.0
-	for i := 0; i < n; i++ {
-		sum, min_score, max_score := 0.0, -1.0, 0.0
-		for j := 0; j < m; j++ {
-			score := 0.0
-			fmt.Scan(&score)
+	fmt.Println(mul(n))
+}
 
-			if min_score == -1.0 || min_score > score {
-				min_score = score
-			}
-			if max_score < score {
-				max_score = score
-			}
-			sum += score
-		}
-		sum -= min_score
-		sum -= max_score
-		sum /= float64(m - 2)
-		if sum > ans {
-			ans = sum
-		}
+func mul(n int) int {
+	if n == 1 {
+		return 1
+	} else {
+		return n * mul(n-1)
 	}
-	fmt.Printf("%.2f\n", ans)
 }
 
 func make_cube(height int, width int) [][]rune {
