@@ -4,74 +4,66 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
-	var q int
-	fmt.Scan(&q)
-
-	var str string
-	fmt.Scanln(&str)
-
+	var count [26]int
+	height := 0
 	scanner := bufio.NewScanner(os.Stdin)
-	for i := 0; i < q; i++ {
+	for i := 0; i < 4; i++ {
 		scanner.Scan()
 		input := scanner.Text()
-		ops := strings.Fields(input)
-		switch ops[0] {
-		case "1": // 后接插入
-			str = str + ops[1]
-			fmt.Printf("%s\n", str)
-		case "2":
-			start, _ := strconv.Atoi(ops[1])
-			length, _ := strconv.Atoi(ops[2])
-			end := start + length
-			if end >= len(str) {
-				str = str[start:]
-			} else {
-				str = str[start:end]
-			}
-			fmt.Printf("%s\n", str)
-		case "3":
-			start, _ := strconv.Atoi(ops[1])
-			if start >= len(str) {
-				str = str + ops[2]
-			} else {
-				str = str[:start] + ops[2] + str[start:]
-			}
-			fmt.Printf("%s\n", str)
-		case "4":
-			ans := -1
-			target_str := ops[1]
-			if len(target_str) > len(str) {
-				ans = -1
-			} else if len(target_str) == len(str) {
-				if target_str == str {
-					ans = 0
-				} else {
-					ans = -1
-				}
-			} else {
-				target_len := len(target_str)
-				for i := 0; i < len(str); i++ {
-					if i+target_len >= len(str) {
-						if str[i:] == target_str {
-							ans = i
-							break
-						}
-					} else {
-						if str[i:i+target_len] == target_str {
-							ans = i
-							break
-						}
-					}
+		for j := 0; j < len(input); j++ {
+			if 'A' <= input[j] && input[j] <= 'Z' {
+				idx := input[j] - 'A'
+				count[idx] += 1
+				if count[idx] > height {
+					height = count[idx]
 				}
 			}
-			fmt.Printf("%d\n", ans)
 		}
 	}
+
+	cube := make_cube(height, 26)
+	for col := 0; col < 26; col++ {
+		for row := height - 1; row >= 0 && count[col] > 0; row -= 1 {
+			cube[row][col] = '*'
+			count[col] -= 1
+		}
+	}
+
+	for row := 0; row < height; row++ {
+		for col := 0; col < 26; col++ {
+			if col == 25 {
+				fmt.Printf("%c", cube[row][col])
+			} else {
+				fmt.Printf("%c ", cube[row][col])
+			}
+		}
+		fmt.Println()
+	}
+	for col := 0; col < 26; col++ {
+		c := 'A' + col
+		if col == 25 {
+			fmt.Printf("%c", c)
+		} else {
+			fmt.Printf("%c ", c)
+		}
+	}
+	fmt.Println()
+}
+
+func make_cube(height int, width int) [][]rune {
+	var cube [][]rune
+	for i := 0; i < height; i++ {
+		var some_row []rune
+		for j := 0; j < width; j++ {
+			some_row = append(some_row, ' ')
+		}
+		cube = append(cube, some_row)
+	}
+
+	return cube
 }
 
 func n2i(n rune) int {
@@ -109,17 +101,4 @@ func num_len(num int) int {
 	}
 
 	return 1
-}
-
-func make_cube(n int) [][]rune {
-	var cube [][]rune
-	for i := 0; i < n; i++ {
-		var some_row []rune
-		for j := 0; j < n; j++ {
-			some_row = append(some_row, 0)
-		}
-		cube = append(cube, some_row)
-	}
-
-	return cube
 }
