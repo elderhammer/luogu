@@ -2,35 +2,42 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
 func main() {
-	var (
-		x1 float64
-		y1 float64
-		x2 float64
-		y2 float64
-		x3 float64
-		y3 float64
-	)
+	var n int
+	fmt.Scan(&n)
 
-	fmt.Scan(&x1, &y1)
-	fmt.Scan(&x2, &y2)
-	fmt.Scan(&x3, &y3)
+	var notp [100001]int // 0表示素数，1表示合数
+	notp[0], notp[1] = -1, -1
 
-	d_1 := dis(x1, y1, x2, y2)
-	d_2 := dis(x1, y1, x3, y3)
-	d_3 := dis(x2, y2, x3, y3)
+	var primes []int
+	for i := 2; i < len(notp); i++ {
+		if notp[i] == 0 {
+			primes = append(primes, i)
+		}
+		for _, p := range primes {
+			if i*p >= len(notp) {
+				// 超过边界
+				break
+			}
+			notp[i*p] = 1 // p的i倍是合数
+			if i%p == 0 {
+				// i找到了其最小素因子
+				break
+			}
+		}
+	}
 
-	fmt.Printf("%.2f\n", d_1+d_2+d_3)
-}
+	for i := 0; i < n; i++ {
+		num := 0
+		fmt.Scan(&num)
 
-func dis(x1 float64, y1 float64, x2 float64, y2 float64) float64 {
-	d_x := x2 - x1
-	d_y := y2 - y1
-
-	return math.Sqrt(d_x*d_x + d_y*d_y)
+		if notp[num] == 0 {
+			fmt.Printf("%d ", num)
+		}
+	}
+	fmt.Println()
 }
 
 func make_cube(height int, width int) [][]rune {
