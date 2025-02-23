@@ -5,37 +5,20 @@ import (
 )
 
 func main() {
-	var n int
-	fmt.Scan(&n)
+	var x int
+	var y int
+	fmt.Scan(&x, &y)
 
-	var notp [100001]int // 0表示素数，1表示合数
-	notp[0], notp[1] = -1, -1
-
-	var primes []int
-	for i := 2; i < len(notp); i++ {
-		if notp[i] == 0 {
-			primes = append(primes, i)
-		}
-		for _, p := range primes {
-			if i*p >= len(notp) {
-				// 超过边界
-				break
-			}
-			notp[i*p] = 1 // p的i倍是合数
-			if i%p == 0 {
-				// i找到了其最小素因子
-				break
-			}
+	var leap_years []int
+	for i := x; i <= y; i++ {
+		if (i%4 == 0 && i%100 != 0) || i%400 == 0 {
+			leap_years = append(leap_years, i)
 		}
 	}
 
-	for i := 0; i < n; i++ {
-		num := 0
-		fmt.Scan(&num)
-
-		if notp[num] == 0 {
-			fmt.Printf("%d ", num)
-		}
+	fmt.Println(len(leap_years))
+	for i := 0; i < len(leap_years); i++ {
+		fmt.Printf("%d ", leap_years[i])
 	}
 	fmt.Println()
 }
