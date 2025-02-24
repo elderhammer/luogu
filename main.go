@@ -4,46 +4,37 @@ import (
 	"fmt"
 )
 
-type record struct {
-	num         int
-	study_score int
-	pe_score    int
-	sum_up      float64 // x10
-}
-
-func (r record) total_score() int {
-	return r.pe_score + r.study_score
-}
-
 func main() {
 	var n int
 	fmt.Scan(&n)
 
-	records := []record{}
-	for i := 0; i < n; i++ {
-		var (
-			num         int
-			study_score int
-			pe_score    int
-		)
-
-		fmt.Scan(&num, &study_score, &pe_score)
-
-		sum_up := study_score*7 + pe_score*3
-		records = append(records, record{num, study_score, pe_score, float64(sum_up)})
-	}
-
-	for i := 0; i < n; i++ {
-		if comment(&records[i]) {
-			fmt.Println("Excellent")
-		} else {
-			fmt.Println("Not excellent")
+	notp := [10001]int{} // 1表示不是素数，0表示素数
+	notp[0], notp[1] = 1, 1
+	primes := []int{}
+	for i := 2; i <= 10000; i++ {
+		if notp[i] == 0 {
+			primes = append(primes, i)
+		}
+		for _, p := range primes {
+			if i*p > 10000 { // 越界
+				break
+			}
+			notp[i*p] = 1
+			if i%p == 0 {
+				break
+			}
 		}
 	}
-}
 
-func comment(r *record) bool {
-	return r.total_score() > 140 && r.sum_up >= 800.0
+	for i := 1; i <= (n-2)/2; i++ {
+		c := 2*i + 2
+		for j := 2; j <= 10000 && c-j > 0; j++ {
+			if notp[j] == 0 && notp[c-j] == 0 {
+				fmt.Printf("%d=%d+%d\n", c, j, c-j)
+				break
+			}
+		}
+	}
 }
 
 func carve(o_x int, o_y int, edge_len int, diff_cube *[][]int) {
