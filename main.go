@@ -2,28 +2,64 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
+
+type record struct {
+	name          string
+	chinese_score int
+	math_score    int
+	english_score int
+}
 
 func main() {
 	var n int
 	fmt.Scan(&n)
 
-	start_time := time.Now()
+	var records []record
+	for i := 0; i < n; i++ {
+		var (
+			name          string
+			chinese_score int
+			math_score    int
+			english_score int
+		)
+		fmt.Scan(&name, &chinese_score, &math_score, &english_score)
 
-	for i := 0; i < 1<<n; i++ {
-		for j := 0; j < 1<<n; j++ {
-			if i|j != (1<<n)-1 {
-				fmt.Printf("%d ", 0)
-			} else {
-				fmt.Printf("%d ", 1)
-			}
-		}
-		fmt.Println()
+		new_record := record{name, chinese_score, math_score, english_score}
+		records = append(records, new_record)
 	}
 
-	timeElapsed := time.Since(start_time)
-	fmt.Println(timeElapsed)
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			if cmp(&records[i], &records[j]) {
+				fmt.Printf("%s %s\n", records[i].name, records[j].name)
+			}
+		}
+	}
+}
+
+func cmp(a_record *record, b_record *record) bool {
+	if !in_range(-5, 5, a_record.chinese_score-b_record.chinese_score) {
+		return false
+	}
+
+	if !in_range(-5, 5, a_record.math_score-b_record.math_score) {
+		return false
+	}
+
+	if !in_range(-5, 5, a_record.english_score-b_record.english_score) {
+		return false
+	}
+
+	if !in_range(-10, 10, a_record.chinese_score+a_record.english_score+a_record.math_score-(b_record.chinese_score+b_record.english_score+b_record.math_score)) {
+		return false
+	}
+
+	return true
+}
+
+func in_range(min_num int, max_num int, num int) bool {
+	return min_num <= num && num <= max_num
 }
 
 func carve(o_x int, o_y int, edge_len int, diff_cube *[][]int) {
