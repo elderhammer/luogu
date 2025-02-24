@@ -1,40 +1,56 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"math/big"
+	"os"
+	"strings"
 )
 
 func main() {
-	var n int
-	fmt.Scan(&n)
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
 
-	notp := [10001]int{} // 1表示不是素数，0表示素数
-	notp[0], notp[1] = 1, 1
-	primes := []int{}
-	for i := 2; i <= 10000; i++ {
-		if notp[i] == 0 {
-			primes = append(primes, i)
-		}
-		for _, p := range primes {
-			if i*p > 10000 { // 越界
-				break
-			}
-			notp[i*p] = 1
-			if i%p == 0 {
-				break
-			}
-		}
+	numStrings := strings.Split(input, " ")
+	var numbers []uint64
+	for _, str := range numStrings {
+		num, _ := new(big.Int).SetString(str, 10)
+		numbers = append(numbers, num.Uint64())
 	}
 
-	for i := 1; i <= (n-2)/2; i++ {
-		c := 2*i + 2
-		for j := 2; j <= 10000 && c-j > 0; j++ {
-			if notp[j] == 0 && notp[c-j] == 0 {
-				fmt.Printf("%d=%d+%d\n", c, j, c-j)
-				break
-			}
-		}
+	n := len(numbers)
+	var times = uint64(cal_index(2, n-1))
+
+	// 全部元素加起来
+	var sum uint64 = 0
+	for i := 0; i < n; i++ {
+		sum += numbers[i] * times
 	}
+
+	fmt.Println(sum)
+}
+
+func compose(m uint64, n uint64) uint64 {
+	return factorial(n) / (factorial(n-m) * factorial(m))
+}
+
+func factorial(n uint64) uint64 {
+	var product uint64 = 1
+	for i := n; i > 0; i-- {
+		product *= i
+	}
+	return product
+}
+
+func cal_index(base int, times int) int {
+	product := 1
+	for i := 0; i < times; i++ {
+		product *= base
+	}
+
+	return product
 }
 
 func carve(o_x int, o_y int, edge_len int, diff_cube *[][]int) {
@@ -66,15 +82,6 @@ func carve(o_x int, o_y int, edge_len int, diff_cube *[][]int) {
 	carve(o_x+half_edge_len, o_y+half_edge_len, half_edge_len, diff_cube)
 }
 
-func _2_index(times int) int {
-	product := 1
-	for i := 0; i < times; i++ {
-		product *= 2
-	}
-
-	return product
-}
-
 func make_cube(height int, width int, default_value int) [][]int {
 	var cube [][]int
 	for i := 0; i < height; i++ {
@@ -86,14 +93,6 @@ func make_cube(height int, width int, default_value int) [][]int {
 	}
 
 	return cube
-}
-
-func mul(n int) int {
-	if n == 1 {
-		return 1
-	} else {
-		return n * mul(n-1)
-	}
 }
 
 func n2i(n rune) int {
