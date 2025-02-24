@@ -2,46 +2,28 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func main() {
 	var n int
 	fmt.Scan(&n)
 
-	edge_len := _2_index(n)
+	start_time := time.Now()
 
-	// 差分矩阵
-	diff_cube := make_cube(edge_len, edge_len, 0)
-
-	// 切分
-	carve(0, 0, edge_len, &diff_cube)
-
-	// 计算前缀和
-	for row := 0; row < edge_len; row++ {
-		for col := 0; col < edge_len; col++ {
-			if row == 0 && col == 0 {
-				// diff_cube[row][col] = diff_cube[row][col]
-			} else if row == 0 {
-				diff_cube[row][col] = diff_cube[row][col] + diff_cube[row][col-1]
-			} else if col == 0 {
-				diff_cube[row][col] = diff_cube[row][col] + diff_cube[row-1][col]
+	for i := 0; i < 1<<n; i++ {
+		for j := 0; j < 1<<n; j++ {
+			if i|j != (1<<n)-1 {
+				fmt.Printf("%d ", 0)
 			} else {
-				diff_cube[row][col] = diff_cube[row][col] + diff_cube[row][col-1] + diff_cube[row-1][col] - diff_cube[row-1][col-1]
+				fmt.Printf("%d ", 1)
 			}
-			// fmt.Printf("%d ", diff_cube[row][col])
-		}
-		// fmt.Println()
-	}
-
-	// 投影到原矩阵
-	ori_cube := make_cube(edge_len, edge_len, 1)
-	for row := 0; row < edge_len; row++ {
-		for col := 0; col < edge_len; col++ {
-			ori_cube[row][col] += diff_cube[row][col]
-			fmt.Printf("%d ", ori_cube[row][col])
 		}
 		fmt.Println()
 	}
+
+	timeElapsed := time.Since(start_time)
+	fmt.Println(timeElapsed)
 }
 
 func carve(o_x int, o_y int, edge_len int, diff_cube *[][]int) {
