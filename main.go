@@ -7,17 +7,95 @@ import (
 )
 
 func main() {
-	input_str := read()
+	var n int
+	var m int
+	fmt.Scan(&n, &m)
 
-	// fmt.Println(input_str)
+	cube := [][]int{}
+	scanner := bufio.NewScanner(os.Stdin)
+	for i := 0; i < n; i++ {
+		some_row := []int{}
+		scanner.Scan()
+		input := scanner.Text()
+		for j := 0; j < len(input); j++ {
+			if input[j] == '*' { // 1表示地雷
+				some_row = append(some_row, 1)
+			} else {
+				some_row = append(some_row, 0)
+			}
+		}
+		cube = append(cube, some_row)
+	}
 
-	// 11分制
-	stat(&input_str, 11)
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			// 是否是地雷格
+			if cube[i][j] == 1 {
+				fmt.Print("*")
+			} else {
+				fmt.Print(count_mine(&cube, n, m, i, j))
+			}
+		}
+		fmt.Println()
+	}
+}
 
-	fmt.Println()
+func count_mine(cube *[][]int, height int, width int, x int, y int) int {
+	count := 0
 
-	// 21分制
-	stat(&input_str, 21)
+	// 左上
+	if is_mine(cube, height, width, x-1, y-1) {
+		count += 1
+	}
+
+	// 上
+	if is_mine(cube, height, width, x-1, y) {
+		count += 1
+	}
+
+	// 右上
+	if is_mine(cube, height, width, x-1, y+1) {
+		count += 1
+	}
+
+	// 右
+	if is_mine(cube, height, width, x, y+1) {
+		count += 1
+	}
+
+	// 右下
+	if is_mine(cube, height, width, x+1, y+1) {
+		count += 1
+	}
+
+	// 下
+	if is_mine(cube, height, width, x+1, y) {
+		count += 1
+	}
+
+	// 左下
+	if is_mine(cube, height, width, x+1, y-1) {
+		count += 1
+	}
+
+	// 左
+	if is_mine(cube, height, width, x, y-1) {
+		count += 1
+	}
+
+	return count
+}
+
+func is_mine(cube *[][]int, height int, width int, x int, y int) bool {
+	if x < 0 || x >= height {
+		return false
+	}
+
+	if y < 0 || y >= width {
+		return false
+	}
+
+	return (*cube)[x][y] == 1
 }
 
 func read() string {
@@ -111,10 +189,10 @@ func carve(o_x int, o_y int, edge_len int, diff_cube *[][]int) {
 	carve(o_x+half_edge_len, o_y+half_edge_len, half_edge_len, diff_cube)
 }
 
-func make_cube(height int, width int, default_value int) [][]int {
-	var cube [][]int
+func make_cube(height int, width int, default_value rune) [][]rune {
+	var cube [][]rune
 	for i := 0; i < height; i++ {
-		var some_row []int
+		var some_row []rune
 		for j := 0; j < width; j++ {
 			some_row = append(some_row, default_value)
 		}
