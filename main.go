@@ -3,33 +3,62 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math/big"
 	"os"
-	"strings"
 )
 
 func main() {
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
+	input_str := read()
 
-	numStrings := strings.Split(input, " ")
-	var numbers []uint64
-	for _, str := range numStrings {
-		num, _ := new(big.Int).SetString(str, 10)
-		numbers = append(numbers, num.Uint64())
+	// fmt.Println(input_str)
+
+	// 11分制
+	stat(&input_str, 11)
+
+	fmt.Println()
+
+	// 21分制
+	stat(&input_str, 21)
+}
+
+func read() string {
+	var input_str string
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		input := scanner.Text()
+
+		for i := 0; i < len(input); i++ {
+			// 判断是否结束输入
+			if input[i] == 'E' {
+				input_str += input[:i]
+				return input_str
+			}
+		}
+		input_str += input
 	}
 
-	n := len(numbers)
-	var times = uint64(cal_index(2, n-1))
+	return input_str
+}
 
-	// 全部元素加起来
-	var sum uint64 = 0
-	for i := 0; i < n; i++ {
-		sum += numbers[i] * times
+func stat(input_str *string, game_point int) {
+	win, lose := 0, 0
+	for i := 0; i < len(*input_str); i++ {
+		// 记分
+		if (*input_str)[i] == 'W' {
+			win += 1
+		} else {
+			lose += 1
+		}
+		// 其中一方到达赛点
+		if win >= game_point || lose >= game_point {
+			diff := win - lose
+			if diff <= -2 || 2 <= diff {
+				fmt.Printf("%d:%d\n", win, lose)
+				win, lose = 0, 0 // 重置记分
+			}
+		}
 	}
-
-	fmt.Println(sum)
+	// 0比0都要输出
+	fmt.Printf("%d:%d\n", win, lose)
 }
 
 func compose(m uint64, n uint64) uint64 {
