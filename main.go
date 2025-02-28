@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 )
 
 func main() {
@@ -10,7 +9,7 @@ func main() {
 	var b string
 	fmt.Scan(&a, &b)
 
-	a_plus_b(&a, &b)
+	a_add_b(&a, &b)
 }
 
 func a_plus_b(a *string, b *string) {
@@ -58,7 +57,7 @@ func pow_10_str(times int) string {
 	return product
 }
 
-func a_add_b(a *string, b *string) string {
+func a_add_b(a *string, b *string) {
 	// 对齐
 	if len(*a) > len(*b) {
 		for i := len(*a) - len(*b); i > 0; i-- {
@@ -70,34 +69,31 @@ func a_add_b(a *string, b *string) string {
 		}
 	}
 
-	c := ""
-	carry := 0
+	c := []int{}
 	for i := len(*a) - 1; i >= 0; i-- {
-		sum := int((*a)[i]-'0'+(*b)[i]-'0') + carry
-		c = strconv.Itoa(sum%10) + c
-		if sum >= 10 {
-			carry = 1
-		} else {
-			carry = 0
-		}
-	}
-	if carry > 0 {
-		c = "1" + c
+		c = append(c, int((*a)[i]-'0')+int((*b)[i]-'0'))
 	}
 
-	nzero_idx := -1
+	// 进位
 	for i := 0; i < len(c); i++ {
-		if c[i] != '0' {
-			nzero_idx = i
-			break
+		if c[i] > 9 {
+			c[i+1] += c[i] / 10
+			c[i] = c[i] % 10
 		}
 	}
 
-	if nzero_idx < 0 {
-		return "0"
-	} else {
-		return c[nzero_idx:]
+	// 去掉开头的0
+	pos := len(c) - 1
+	for c[pos] == 0 && pos > 0 {
+		pos -= 1
 	}
+
+	// 打印
+	for i := pos; i >= 0; i-- {
+		fmt.Print(c[i])
+	}
+
+	fmt.Println()
 }
 
 func compose(m uint64, n uint64) uint64 {
