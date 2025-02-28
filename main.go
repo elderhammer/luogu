@@ -5,15 +5,34 @@ import (
 )
 
 func main() {
-	var a string
-	var b string
-	fmt.Scan(&a, &b)
+	var n int
+	fmt.Scan(&n)
 
-	a_add_b(&a, &b)
+	product := []int{1}
+	if n > 0 {
+		for i := n; i > 0; i-- {
+			r_j := []int{}
+			i_ := i
+			for i_ > 0 {
+				r_j = append(r_j, i_%10)
+				i_ /= 10
+			}
+			j := []int{}
+			for k := len(r_j) - 1; k >= 0; k-- {
+				j = append(j, r_j[k])
+			}
+			product = a_plus_b(&product, &j)
+		}
+	}
+
+	for i := 0; i < len(product); i++ {
+		fmt.Print(product[i])
+	}
+	fmt.Println()
 }
 
-func a_plus_b(a *string, b *string) {
-	c := [10001]int{}
+func a_plus_b(a *[]int, b *[]int) []int {
+	c := [100001]int{}
 
 	a_len := len(*a)
 	b_len := len(*b)
@@ -22,7 +41,7 @@ func a_plus_b(a *string, b *string) {
 	for i := a_len - 1; i >= 0; i-- {
 		for j := b_len - 1; j >= 0; j-- {
 			// 错位相加
-			c[(a_len-i-1)+(b_len-j-1)] += int((*a)[i]-'0') * int((*b)[j]-'0')
+			c[(a_len-i-1)+(b_len-j-1)] += (*a)[i] * (*b)[j]
 		}
 	}
 
@@ -40,12 +59,13 @@ func a_plus_b(a *string, b *string) {
 		len -= 1
 	}
 
-	// 打印
+	// 翻转顺序
+	r_c := []int{}
 	for i := len; i >= 0; i-- {
-		fmt.Print(c[i])
+		r_c = append(r_c, c[i])
 	}
 
-	fmt.Println()
+	return r_c
 }
 
 func pow_10_str(times int) string {
