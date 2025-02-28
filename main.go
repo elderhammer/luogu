@@ -1,57 +1,62 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
-	var n int
-	var m int
-	fmt.Scan(&n, &m)
+	var a string
+	var b string
+	fmt.Scan(&a, &b)
 
-	pos_map_name := make(map[int]string)
-	pos_map_direction := []int{}
-	// 读取小人信息
-	reader := bufio.NewReader(os.Stdin)
-	for i := 0; i < n; i++ {
-		input, _ := reader.ReadString('\n')
-		input_str := strings.Fields(input)
-
-		pos_map_name[i] = input_str[1]
-		direction := -1
-		if input_str[0] == "0" { // 0表示向内
-			direction = 1
-		}
-		pos_map_direction = append(pos_map_direction, direction)
-		// 后续向左改为-1，向右改为1，然后乘以方向，就确定了是顺时针还是逆时针
+	a_len := len(a)
+	b_len := len(b)
+	num_len := a_len
+	if b_len > a_len {
+		num_len = b_len
 	}
 
-	length := len(pos_map_direction)
+	c := []int{}
+	for i := 0; i <= num_len; i++ {
+		c = append(c, 0)
+	}
 
-	next_pos := 0
-	for i := 0; i < m; i++ {
-		input, _ := reader.ReadString('\n')
-		input_str := strings.Fields(input)
+	for i := num_len; i >= 0; i-- {
+		sum := 0
 
-		left_or_right := 1
-		if input_str[0] == "0" {
-			left_or_right = -1
+		offset_to_tail := i - num_len
+
+		a_idx := a_len - 1 + offset_to_tail
+		b_idx := b_len - 1 + offset_to_tail
+		if a_idx >= 0 && b_idx >= 0 {
+			sum = int((a[a_idx] - '0') + (b[b_idx] - '0'))
+		} else if a_idx >= 0 {
+			sum = int((a[a_idx] - '0'))
+		} else if b_idx >= 0 {
+			sum = int((b[b_idx] - '0'))
 		}
+		sum = sum + c[i]
+		c[i] = sum % 10
+		if sum >= 10 {
+			c[i-1] = 1
+		}
+	}
 
-		step, _ := strconv.Atoi(input_str[1])
-
-		next_pos = next_pos + (left_or_right*pos_map_direction[next_pos])*step
-		if next_pos < 0 {
-			next_pos = length - ((-1 * next_pos) % length)
+	meet_nzero := false
+	for i := 0; i <= num_len; i++ {
+		if meet_nzero {
+			fmt.Print(c[i])
 		} else {
-			next_pos = next_pos % length
+			if c[i] > 0 {
+				meet_nzero = true
+				fmt.Print(c[i])
+			}
 		}
 	}
-	fmt.Println(pos_map_name[next_pos])
+	if !meet_nzero {
+		fmt.Print(0)
+	}
+	fmt.Println()
 }
 
 func compose(m uint64, n uint64) uint64 {
