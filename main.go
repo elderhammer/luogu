@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 )
 
 func main() {
@@ -9,54 +10,37 @@ func main() {
 	var b string
 	fmt.Scan(&a, &b)
 
-	a_len := len(a)
-	b_len := len(b)
-	num_len := a_len
-	if b_len > a_len {
-		num_len = b_len
-	}
+	fmt.Println(a_plus_b(&a, &b))
+}
 
-	c := []int{}
-	for i := 0; i <= num_len; i++ {
-		c = append(c, 0)
-	}
-
-	for i := num_len; i >= 0; i-- {
-		sum := 0
-
-		offset_to_tail := i - num_len
-
-		a_idx := a_len - 1 + offset_to_tail
-		b_idx := b_len - 1 + offset_to_tail
-		if a_idx >= 0 && b_idx >= 0 {
-			sum = int((a[a_idx] - '0') + (b[b_idx] - '0'))
-		} else if a_idx >= 0 {
-			sum = int((a[a_idx] - '0'))
-		} else if b_idx >= 0 {
-			sum = int((b[b_idx] - '0'))
+func a_plus_b(a *string, b *string) string {
+	// 对齐
+	if len(*a) > len(*b) {
+		for i := len(*a) - len(*b); i > 0; i-- {
+			*b = "0" + *b
 		}
-		sum = sum + c[i]
-		c[i] = sum % 10
+	} else {
+		for i := len(*b) - len(*a); i > 0; i-- {
+			*a = "0" + *a
+		}
+	}
+
+	c := ""
+	carry := 0
+	for i := len(*a) - 1; i >= 0; i-- {
+		sum := int((*a)[i]-'0'+(*b)[i]-'0') + carry
+		c = strconv.Itoa(sum%10) + c
 		if sum >= 10 {
-			c[i-1] = 1
+			carry = 1
+		} else {
+			carry = 0
 		}
+	}
+	if carry > 0 {
+		c = "1" + c
 	}
 
-	meet_nzero := false
-	for i := 0; i <= num_len; i++ {
-		if meet_nzero {
-			fmt.Print(c[i])
-		} else {
-			if c[i] > 0 {
-				meet_nzero = true
-				fmt.Print(c[i])
-			}
-		}
-	}
-	if !meet_nzero {
-		fmt.Print(0)
-	}
-	fmt.Println()
+	return c
 }
 
 func compose(m uint64, n uint64) uint64 {
