@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -11,132 +13,45 @@ func main() {
 	var m int
 	fmt.Scan(&n, &m)
 
-	cube := [][]int{}
-	scanner := bufio.NewScanner(os.Stdin)
+	pos_map_name := make(map[int]string)
+	pos_map_direction := []int{}
+	// 读取小人信息
+	reader := bufio.NewReader(os.Stdin)
 	for i := 0; i < n; i++ {
-		some_row := []int{}
-		scanner.Scan()
-		input := scanner.Text()
-		for j := 0; j < len(input); j++ {
-			if input[j] == '*' { // 1表示地雷
-				some_row = append(some_row, 1)
-			} else {
-				some_row = append(some_row, 0)
-			}
+		input, _ := reader.ReadString('\n')
+		input_str := strings.Fields(input)
+
+		pos_map_name[i] = input_str[1]
+		direction := -1
+		if input_str[0] == "0" { // 0表示向内
+			direction = 1
 		}
-		cube = append(cube, some_row)
+		pos_map_direction = append(pos_map_direction, direction)
+		// 后续向左改为-1，向右改为1，然后乘以方向，就确定了是顺时针还是逆时针
 	}
 
-	for i := 0; i < n; i++ {
-		for j := 0; j < m; j++ {
-			// 是否是地雷格
-			if cube[i][j] == 1 {
-				fmt.Print("*")
-			} else {
-				fmt.Print(count_mine(&cube, n, m, i, j))
-			}
+	length := len(pos_map_direction)
+
+	next_pos := 0
+	for i := 0; i < m; i++ {
+		input, _ := reader.ReadString('\n')
+		input_str := strings.Fields(input)
+
+		left_or_right := 1
+		if input_str[0] == "0" {
+			left_or_right = -1
 		}
-		fmt.Println()
-	}
-}
 
-func count_mine(cube *[][]int, height int, width int, x int, y int) int {
-	count := 0
+		step, _ := strconv.Atoi(input_str[1])
 
-	// 左上
-	if is_mine(cube, height, width, x-1, y-1) {
-		count += 1
-	}
-
-	// 上
-	if is_mine(cube, height, width, x-1, y) {
-		count += 1
-	}
-
-	// 右上
-	if is_mine(cube, height, width, x-1, y+1) {
-		count += 1
-	}
-
-	// 右
-	if is_mine(cube, height, width, x, y+1) {
-		count += 1
-	}
-
-	// 右下
-	if is_mine(cube, height, width, x+1, y+1) {
-		count += 1
-	}
-
-	// 下
-	if is_mine(cube, height, width, x+1, y) {
-		count += 1
-	}
-
-	// 左下
-	if is_mine(cube, height, width, x+1, y-1) {
-		count += 1
-	}
-
-	// 左
-	if is_mine(cube, height, width, x, y-1) {
-		count += 1
-	}
-
-	return count
-}
-
-func is_mine(cube *[][]int, height int, width int, x int, y int) bool {
-	if x < 0 || x >= height {
-		return false
-	}
-
-	if y < 0 || y >= width {
-		return false
-	}
-
-	return (*cube)[x][y] == 1
-}
-
-func read() string {
-	var input_str string
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		input := scanner.Text()
-
-		for i := 0; i < len(input); i++ {
-			// 判断是否结束输入
-			if input[i] == 'E' {
-				input_str += input[:i]
-				return input_str
-			}
-		}
-		input_str += input
-	}
-
-	return input_str
-}
-
-func stat(input_str *string, game_point int) {
-	win, lose := 0, 0
-	for i := 0; i < len(*input_str); i++ {
-		// 记分
-		if (*input_str)[i] == 'W' {
-			win += 1
+		next_pos = next_pos + (left_or_right*pos_map_direction[next_pos])*step
+		if next_pos < 0 {
+			next_pos = length - ((-1 * next_pos) % length)
 		} else {
-			lose += 1
-		}
-		// 其中一方到达赛点
-		if win >= game_point || lose >= game_point {
-			diff := win - lose
-			if diff <= -2 || 2 <= diff {
-				fmt.Printf("%d:%d\n", win, lose)
-				win, lose = 0, 0 // 重置记分
-			}
+			next_pos = next_pos % length
 		}
 	}
-	// 0比0都要输出
-	fmt.Printf("%d:%d\n", win, lose)
+	fmt.Println(pos_map_name[next_pos])
 }
 
 func compose(m uint64, n uint64) uint64 {
