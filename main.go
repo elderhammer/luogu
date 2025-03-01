@@ -10,62 +10,70 @@ import (
 
 func main() {
 	var n int
-	var m int
-	fmt.Scan(&n, &m)
+	var na int
+	var nb int
+	fmt.Scan(&n, &na, &nb)
 
-	cube := [][]int{}
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	a_input := scanner.Text()
+	a_attacks := []int{}
+	for _, attack := range strings.Fields(a_input) {
+		a, _ := strconv.Atoi(attack)
+		a_attacks = append(a_attacks, a)
+	}
+
+	scanner.Scan()
+	b_input := scanner.Text()
+	b_attacks := []int{}
+	for _, attack := range strings.Fields(b_input) {
+		a, _ := strconv.Atoi(attack)
+		b_attacks = append(b_attacks, a)
+	}
+
+	// fmt.Println(a_attacks, b_attacks)
+
+	cube := [5][5]int{} // 1表示x胜（y输），0表示平手，-1表示x输（y赢）
+	cube[0][0] = 0
+	cube[0][1] = -1
+	cube[0][2] = 1
+	cube[0][3] = 1
+	cube[0][4] = -1
+
+	cube[1][0] = 1
+	cube[1][1] = 0
+	cube[1][2] = -1
+	cube[1][3] = 1
+	cube[1][4] = -1
+
+	cube[2][0] = -1
+	cube[2][1] = 1
+	cube[2][2] = 0
+	cube[2][3] = -1
+	cube[2][4] = 1
+
+	cube[3][0] = -1
+	cube[3][1] = -1
+	cube[3][2] = 1
+	cube[3][3] = 0
+	cube[3][4] = 1
+
+	cube[4][0] = 1
+	cube[4][1] = 1
+	cube[4][2] = -1
+	cube[4][3] = -1
+	cube[4][4] = 0
+
+	a_score, b_score := 0, 0
 	for i := 0; i < n; i++ {
-		row := []int{}
-		for j := 0; j < n; j++ {
-			row = append(row, i*n+j+1)
-		}
-		cube = append(cube, row)
-	}
-
-	// 不要每次都创建临时数组
-	temp_cube := make_cube(n, n, 0)
-
-	reader := bufio.NewReader(os.Stdin)
-	x, y, r, z := 0, 0, 0, 0
-	for i := 0; i < m; i++ {
-		input, _ := reader.ReadString('\n')
-		input_nums := strings.Fields(input)
-		x, _ = strconv.Atoi(input_nums[0])
-		y, _ = strconv.Atoi(input_nums[1])
-		r, _ = strconv.Atoi(input_nums[2])
-		z, _ = strconv.Atoi(input_nums[3])
-
-		e := 2*r + 1
-		x1 := x - 1 - e/2
-		y1 := y - 1 - e/2
-
-		for row := 0; row < e; row++ {
-			for col := 0; col < e; col++ {
-				x_ := e - col - 1
-				y_ := row
-				if z == 1 {
-					x_ = col
-					y_ = e - row - 1
-				}
-				x_ += x1
-				y_ += y1
-				temp_cube[row][col] = cube[x_][y_]
-			}
-		}
-
-		for row := 0; row < e; row++ {
-			for col := 0; col < e; col++ {
-				cube[x1+row][y1+col] = temp_cube[row][col]
-			}
+		result := cube[a_attacks[i%len(a_attacks)]][b_attacks[i%len(b_attacks)]]
+		if result == 1 {
+			a_score += 1
+		} else if result == -1 {
+			b_score += 1
 		}
 	}
-
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			fmt.Printf("%d ", cube[i][j])
-		}
-		fmt.Println()
-	}
+	fmt.Printf("%d %d\n", a_score, b_score)
 }
 
 func make_cube(height int, width int, default_value int) [][]int {
