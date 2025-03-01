@@ -4,76 +4,126 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
-	var n int
-	var na int
-	var nb int
-	fmt.Scan(&n, &na, &nb)
+	cube := [10][10]rune{}
 
 	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	a_input := scanner.Text()
-	a_attacks := []int{}
-	for _, attack := range strings.Fields(a_input) {
-		a, _ := strconv.Atoi(attack)
-		a_attacks = append(a_attacks, a)
-	}
-
-	scanner.Scan()
-	b_input := scanner.Text()
-	b_attacks := []int{}
-	for _, attack := range strings.Fields(b_input) {
-		a, _ := strconv.Atoi(attack)
-		b_attacks = append(b_attacks, a)
-	}
-
-	// fmt.Println(a_attacks, b_attacks)
-
-	cube := [5][5]int{} // 1表示x胜（y输），0表示平手，-1表示x输（y赢）
-	cube[0][0] = 0
-	cube[0][1] = -1
-	cube[0][2] = 1
-	cube[0][3] = 1
-	cube[0][4] = -1
-
-	cube[1][0] = 1
-	cube[1][1] = 0
-	cube[1][2] = -1
-	cube[1][3] = 1
-	cube[1][4] = -1
-
-	cube[2][0] = -1
-	cube[2][1] = 1
-	cube[2][2] = 0
-	cube[2][3] = -1
-	cube[2][4] = 1
-
-	cube[3][0] = -1
-	cube[3][1] = -1
-	cube[3][2] = 1
-	cube[3][3] = 0
-	cube[3][4] = 1
-
-	cube[4][0] = 1
-	cube[4][1] = 1
-	cube[4][2] = -1
-	cube[4][3] = -1
-	cube[4][4] = 0
-
-	a_score, b_score := 0, 0
-	for i := 0; i < n; i++ {
-		result := cube[a_attacks[i%len(a_attacks)]][b_attacks[i%len(b_attacks)]]
-		if result == 1 {
-			a_score += 1
-		} else if result == -1 {
-			b_score += 1
+	f_x, f_y := 0, 0 // 农夫的初始位置
+	c_x, c_y := 0, 0 // 牛的初始位置
+	for i := 0; i < 10; i++ {
+		scanner.Scan()
+		input := scanner.Text()
+		for j, c := range input {
+			if c == 'F' {
+				f_x, f_y = i, j
+				c = '.'
+			} else if c == 'C' {
+				c_x, c_y = i, j
+				c = '.'
+			}
+			cube[i][j] = c
 		}
 	}
-	fmt.Printf("%d %d\n", a_score, b_score)
+
+	f_d, c_d := 0, 0 // 农夫和牛的初始方向，0上、1右、2下、3左，不停循环，直到两者同时在一个格子中
+
+	zt := [160005]int{}
+
+	step := 0
+	for {
+		flag := f_x + f_y*10 + c_x*100 + c_y*1000 + f_d*10000 + c_d*40000
+		if zt[flag] == 1 {
+			fmt.Println(0)
+			return
+		} else {
+			zt[flag] = 1
+		}
+
+		// 农夫行动
+		if front_is_edge(f_x, f_y, f_d) {
+			f_d = change_direction(f_d)
+		} else {
+			front := check_front(&cube, f_x, f_y, f_d)
+			switch front {
+			case '*': // 障碍物，调转方向
+				f_d = change_direction(f_d)
+			default: // 空地，前进
+				// cube[f_x][f_y] = '.'
+				f_x, f_y = move(f_x, f_y, f_d)
+				// cube[f_x][f_y] = 'F'
+			}
+		}
+
+		// 牛行动
+		if front_is_edge(c_x, c_y, c_d) {
+			c_d = change_direction(c_d)
+		} else {
+			front := check_front(&cube, c_x, c_y, c_d)
+			switch front {
+			case '*': // 障碍物，调转方向
+				c_d = change_direction(c_d)
+			default: // 空地，前进
+				// cube[c_x][c_y] = '.'
+				c_x, c_y = move(c_x, c_y, c_d)
+				// cube[c_x][c_y] = 'C'
+			}
+		}
+
+		step += 1
+
+		// 判断状态
+		if f_x == c_x && f_y == c_y {
+			break
+		}
+
+		// 打印
+		// for i := 0; i < 10; i++ {
+		// 	for j := 0; j < 10; j++ {
+		// 		fmt.Printf("%c", cube[i][j])
+		// 	}
+		// 	fmt.Println()
+		// }
+		// fmt.Println()
+
+		// time.Sleep(time.Millisecond)
+	}
+
+	fmt.Println(step)
+}
+
+func change_direction(d int) int {
+	return (d + 1) % 4
+}
+
+func front_is_edge(x int, y int, d int) bool {
+	x, y = move(x, y, d)
+	if x < 0 || y < 0 || x >= 10 || y >= 10 {
+		return true
+	}
+
+	return false
+}
+
+func check_front(cube *[10][10]rune, x int, y int, d int) rune {
+	x, y = move(x, y, d)
+
+	return (*cube)[x][y]
+}
+
+func move(x int, y int, d int) (int, int) {
+	switch d {
+	case 0: //向上
+		x = x - 1
+	case 1: //向右
+		y = y + 1
+	case 2: //向下
+		x = x + 1
+	case 3: //向左
+		y = y - 1
+	}
+	return x, y
 }
 
 func make_cube(height int, width int, default_value int) [][]int {
