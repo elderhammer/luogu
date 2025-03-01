@@ -5,49 +5,85 @@ import (
 )
 
 func main() {
-	var n int
-	fmt.Scan(&n)
+	var p1, p2, p3 int
+	fmt.Scan(&p1, &p2, &p3)
 
-	a := 0
-	as := []int{}
-	for i := 0; i <= n; i++ {
-		fmt.Scan(&a)
-		as = append(as, a)
-	}
+	str := ""
+	fmt.Scan(&str)
 
-	first := true
-	for i, a := range as {
-		// 不包含系数为0的项
-		if a == 0 {
-			continue
+	for i := 0; i < len(str); i++ {
+		if str[i] == '-' && i > 0 && i < len(str)-1 {
+			start, end := str[i-1], str[i+1]
+			if start < end {
+				if 'a' <= start && start <= 'z' && 'a' <= end && end <= 'z' { // 是小写字母
+					if end-start == 1 {
+						continue
+					} else {
+						start += 1
+						end -= 1
+						if p3 == 1 { // 顺序
+							for i := int(start - 'a'); i <= int(end-'a'); i++ {
+								for j := 0; j < p2; j++ {
+									if p1 == 1 { // 小写
+										fmt.Printf("%c", 'a'+i)
+									} else if p1 == 2 { // 大写
+										fmt.Printf("%c", 'A'+i)
+									} else {
+										fmt.Print("*")
+									}
+								}
+							}
+						} else { // 逆序
+							for i := int(end - 'a'); i >= int(start-'a'); i-- {
+								for j := 0; j < p2; j++ {
+									if p1 == 1 { // 小写
+										fmt.Printf("%c", 'a'+i)
+									} else if p1 == 2 { // 大写
+										fmt.Printf("%c", 'A'+i)
+									} else {
+										fmt.Print("*")
+									}
+								}
+							}
+						}
+					}
+				} else if '0' <= start && start <= '9' && '0' <= end && end <= '9' { // 是数字
+					if end-start == 1 {
+						continue
+					} else {
+						start += 1
+						end -= 1
+						if p3 == 1 { // 顺序
+							for i := int(start - '0'); i <= int(end-'0'); i++ {
+								for j := 0; j < p2; j++ {
+									if p1 == 3 {
+										fmt.Print("*")
+									} else {
+										fmt.Printf("%c", '0'+i)
+									}
+								}
+							}
+						} else { // 逆序
+							for i := int(end - '0'); i >= int(start-'0'); i-- {
+								for j := 0; j < p2; j++ {
+									if p1 == 3 {
+										fmt.Print("*")
+									} else {
+										fmt.Printf("%c", '0'+i)
+									}
+								}
+							}
+						}
+					}
+				} else {
+					fmt.Printf("%c", str[i])
+				}
+			} else {
+				fmt.Printf("%c", str[i])
+			}
+		} else {
+			fmt.Printf("%c", str[i])
 		}
-
-		// 符号
-		if a > 0 && !first {
-			fmt.Print("+")
-		} else if a < 0 {
-			fmt.Print("-")
-		}
-		if a < 0 {
-			a = -a
-		}
-
-		// 系数
-		if a != 1 {
-			fmt.Print(a)
-		}
-
-		// 自变量
-		times := n - i
-		if times > 1 {
-			fmt.Printf("x^%d", times)
-		} else if times == 1 {
-			fmt.Print("x")
-		} else if a == 1 {
-			fmt.Print(1)
-		}
-
-		first = false
 	}
 	fmt.Println()
 }
