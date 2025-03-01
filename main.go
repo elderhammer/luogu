@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -9,7 +13,6 @@ func main() {
 	var m int
 	fmt.Scan(&n, &m)
 
-	// cube := make_cube(n, n, 0)
 	cube := [][]int{}
 	for i := 0; i < n; i++ {
 		row := []int{}
@@ -19,26 +22,31 @@ func main() {
 		cube = append(cube, row)
 	}
 
+	// 不要每次都创建临时数组
+	temp_cube := make_cube(n, n, 0)
+
+	reader := bufio.NewReader(os.Stdin)
 	x, y, r, z := 0, 0, 0, 0
 	for i := 0; i < m; i++ {
-		fmt.Scan(&x, &y, &r, &z)
-		// 边长
+		input, _ := reader.ReadString('\n')
+		input_nums := strings.Fields(input)
+		x, _ = strconv.Atoi(input_nums[0])
+		y, _ = strconv.Atoi(input_nums[1])
+		r, _ = strconv.Atoi(input_nums[2])
+		z, _ = strconv.Atoi(input_nums[3])
+
 		e := 2*r + 1
-		// 原点
 		x1 := x - 1 - e/2
 		y1 := y - 1 - e/2
 
-		temp_cube := make_cube(e, e, 0)
 		for row := 0; row < e; row++ {
 			for col := 0; col < e; col++ {
 				x_ := e - col - 1
 				y_ := row
-				// 默认顺时针
-				if z == 1 { // 逆时针
+				if z == 1 {
 					x_ = col
 					y_ = e - row - 1
 				}
-				// 根据左上原点进行校正
 				x_ += x1
 				y_ += y1
 				temp_cube[row][col] = cube[x_][y_]
@@ -58,6 +66,19 @@ func main() {
 		}
 		fmt.Println()
 	}
+}
+
+func make_cube(height int, width int, default_value int) [][]int {
+	var cube [][]int
+	for i := 0; i < height; i++ {
+		var some_row []int
+		for j := 0; j < width; j++ {
+			some_row = append(some_row, default_value)
+		}
+		cube = append(cube, some_row)
+	}
+
+	return cube
 }
 
 func a_plus_b(a *[]int, b *[]int) []int {
@@ -193,19 +214,6 @@ func carve(o_x int, o_y int, edge_len int, diff_cube *[][]int) {
 
 	// 右下小正方形
 	carve(o_x+half_edge_len, o_y+half_edge_len, half_edge_len, diff_cube)
-}
-
-func make_cube(height int, width int, default_value int) [][]int {
-	var cube [][]int
-	for i := 0; i < height; i++ {
-		var some_row []int
-		for j := 0; j < width; j++ {
-			some_row = append(some_row, default_value)
-		}
-		cube = append(cube, some_row)
-	}
-
-	return cube
 }
 
 func n2i(n rune) int {
