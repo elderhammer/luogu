@@ -1,96 +1,55 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 )
 
 func main() {
-	cube := [10][10]rune{}
+	var n int
+	fmt.Scan(&n)
 
-	scanner := bufio.NewScanner(os.Stdin)
-	f_x, f_y := 0, 0 // 农夫的初始位置
-	c_x, c_y := 0, 0 // 牛的初始位置
-	for i := 0; i < 10; i++ {
-		scanner.Scan()
-		input := scanner.Text()
-		for j, c := range input {
-			if c == 'F' {
-				f_x, f_y = i, j
-				c = '.'
-			} else if c == 'C' {
-				c_x, c_y = i, j
-				c = '.'
-			}
-			cube[i][j] = c
-		}
+	a := 0
+	as := []int{}
+	for i := 0; i <= n; i++ {
+		fmt.Scan(&a)
+		as = append(as, a)
 	}
 
-	f_d, c_d := 0, 0 // 农夫和牛的初始方向，0上、1右、2下、3左，不停循环，直到两者同时在一个格子中
-
-	zt := [160005]int{}
-
-	step := 0
-	for {
-		flag := f_x + f_y*10 + c_x*100 + c_y*1000 + f_d*10000 + c_d*40000
-		if zt[flag] == 1 {
-			fmt.Println(0)
-			return
-		} else {
-			zt[flag] = 1
+	first := true
+	for i, a := range as {
+		// 不包含系数为0的项
+		if a == 0 {
+			continue
 		}
 
-		// 农夫行动
-		if front_is_edge(f_x, f_y, f_d) {
-			f_d = change_direction(f_d)
-		} else {
-			front := check_front(&cube, f_x, f_y, f_d)
-			switch front {
-			case '*': // 障碍物，调转方向
-				f_d = change_direction(f_d)
-			default: // 空地，前进
-				// cube[f_x][f_y] = '.'
-				f_x, f_y = move(f_x, f_y, f_d)
-				// cube[f_x][f_y] = 'F'
-			}
+		// 符号
+		if a > 0 && !first {
+			fmt.Print("+")
+		} else if a < 0 {
+			fmt.Print("-")
+		}
+		if a < 0 {
+			a = -a
 		}
 
-		// 牛行动
-		if front_is_edge(c_x, c_y, c_d) {
-			c_d = change_direction(c_d)
-		} else {
-			front := check_front(&cube, c_x, c_y, c_d)
-			switch front {
-			case '*': // 障碍物，调转方向
-				c_d = change_direction(c_d)
-			default: // 空地，前进
-				// cube[c_x][c_y] = '.'
-				c_x, c_y = move(c_x, c_y, c_d)
-				// cube[c_x][c_y] = 'C'
-			}
+		// 系数
+		if a != 1 {
+			fmt.Print(a)
 		}
 
-		step += 1
-
-		// 判断状态
-		if f_x == c_x && f_y == c_y {
-			break
+		// 自变量
+		times := n - i
+		if times > 1 {
+			fmt.Printf("x^%d", times)
+		} else if times == 1 {
+			fmt.Print("x")
+		} else if a == 1 {
+			fmt.Print(1)
 		}
 
-		// 打印
-		// for i := 0; i < 10; i++ {
-		// 	for j := 0; j < 10; j++ {
-		// 		fmt.Printf("%c", cube[i][j])
-		// 	}
-		// 	fmt.Println()
-		// }
-		// fmt.Println()
-
-		// time.Sleep(time.Millisecond)
+		first = false
 	}
-
-	fmt.Println(step)
+	fmt.Println()
 }
 
 func change_direction(d int) int {
