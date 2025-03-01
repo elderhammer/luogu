@@ -6,29 +6,58 @@ import (
 
 func main() {
 	var n int
-	fmt.Scan(&n)
+	var m int
+	fmt.Scan(&n, &m)
 
-	product := []int{1}
-	if n > 0 {
-		for i := n; i > 0; i-- {
-			r_j := []int{}
-			i_ := i
-			for i_ > 0 {
-				r_j = append(r_j, i_%10)
-				i_ /= 10
+	// cube := make_cube(n, n, 0)
+	cube := [][]int{}
+	for i := 0; i < n; i++ {
+		row := []int{}
+		for j := 0; j < n; j++ {
+			row = append(row, i*n+j+1)
+		}
+		cube = append(cube, row)
+	}
+
+	x, y, r, z := 0, 0, 0, 0
+	for i := 0; i < m; i++ {
+		fmt.Scan(&x, &y, &r, &z)
+		// 边长
+		e := 2*r + 1
+		// 原点
+		x1 := x - 1 - e/2
+		y1 := y - 1 - e/2
+
+		temp_cube := make_cube(e, e, 0)
+		for row := 0; row < e; row++ {
+			for col := 0; col < e; col++ {
+				x_ := e - col - 1
+				y_ := row
+				// 默认顺时针
+				if z == 1 { // 逆时针
+					x_ = col
+					y_ = e - row - 1
+				}
+				// 根据左上原点进行校正
+				x_ += x1
+				y_ += y1
+				temp_cube[row][col] = cube[x_][y_]
 			}
-			j := []int{}
-			for k := len(r_j) - 1; k >= 0; k-- {
-				j = append(j, r_j[k])
+		}
+
+		for row := 0; row < e; row++ {
+			for col := 0; col < e; col++ {
+				cube[x1+row][y1+col] = temp_cube[row][col]
 			}
-			product = a_plus_b(&product, &j)
 		}
 	}
 
-	for i := 0; i < len(product); i++ {
-		fmt.Print(product[i])
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			fmt.Printf("%d ", cube[i][j])
+		}
+		fmt.Println()
 	}
-	fmt.Println()
 }
 
 func a_plus_b(a *[]int, b *[]int) []int {
@@ -166,10 +195,10 @@ func carve(o_x int, o_y int, edge_len int, diff_cube *[][]int) {
 	carve(o_x+half_edge_len, o_y+half_edge_len, half_edge_len, diff_cube)
 }
 
-func make_cube(height int, width int, default_value rune) [][]rune {
-	var cube [][]rune
+func make_cube(height int, width int, default_value int) [][]int {
+	var cube [][]int
 	for i := 0; i < height; i++ {
-		var some_row []rune
+		var some_row []int
 		for j := 0; j < width; j++ {
 			some_row = append(some_row, default_value)
 		}
