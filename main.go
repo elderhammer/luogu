@@ -2,90 +2,114 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 func main() {
-	var p1, p2, p3 int
-	fmt.Scan(&p1, &p2, &p3)
+	var m, n int
+	fmt.Scan(&m, &n)
 
-	str := ""
-	fmt.Scan(&str)
+	order := []int{} // 安排顺序
+	for i := 0; i < m*n; i++ {
+		workpiece := 0 // 工件号
+		fmt.Scan(&workpiece)
+		order = append(order, workpiece-1)
+	}
 
-	for i := 0; i < len(str); i++ {
-		if str[i] == '-' && i > 0 && i < len(str)-1 {
-			start, end := str[i-1], str[i+1]
-			if start < end {
-				if 'a' <= start && start <= 'z' && 'a' <= end && end <= 'z' { // 是小写字母
-					if end-start == 1 {
-						continue
-					} else {
-						start += 1
-						end -= 1
-						if p3 == 1 { // 顺序
-							for i := int(start - 'a'); i <= int(end-'a'); i++ {
-								for j := 0; j < p2; j++ {
-									if p1 == 1 { // 小写
-										fmt.Printf("%c", 'a'+i)
-									} else if p1 == 2 { // 大写
-										fmt.Printf("%c", 'A'+i)
-									} else {
-										fmt.Print("*")
-									}
-								}
-							}
-						} else { // 逆序
-							for i := int(end - 'a'); i >= int(start-'a'); i-- {
-								for j := 0; j < p2; j++ {
-									if p1 == 1 { // 小写
-										fmt.Printf("%c", 'a'+i)
-									} else if p1 == 2 { // 大写
-										fmt.Printf("%c", 'A'+i)
-									} else {
-										fmt.Print("*")
-									}
-								}
-							}
-						}
-					}
-				} else if '0' <= start && start <= '9' && '0' <= end && end <= '9' { // 是数字
-					if end-start == 1 {
-						continue
-					} else {
-						start += 1
-						end -= 1
-						if p3 == 1 { // 顺序
-							for i := int(start - '0'); i <= int(end-'0'); i++ {
-								for j := 0; j < p2; j++ {
-									if p1 == 3 {
-										fmt.Print("*")
-									} else {
-										fmt.Printf("%c", '0'+i)
-									}
-								}
-							}
-						} else { // 逆序
-							for i := int(end - '0'); i >= int(start-'0'); i-- {
-								for j := 0; j < p2; j++ {
-									if p1 == 3 {
-										fmt.Print("*")
-									} else {
-										fmt.Printf("%c", '0'+i)
-									}
-								}
-							}
-						}
-					}
-				} else {
-					fmt.Printf("%c", str[i])
+	workpiece_machines := [][]int{} // 每个工件每个工序对应的机器号
+	for i := 0; i < n; i++ {
+		step_machines := []int{} // 每个工序对应的机器号
+		for j := 0; j < m; j++ {
+			machine := 0 // 机器号
+			fmt.Scan(&machine)
+			step_machines = append(step_machines, machine-1)
+		}
+		workpiece_machines = append(workpiece_machines, step_machines)
+	}
+
+	max_time := 0         // 最大时间
+	op_times := [][]int{} // 每个工件每个工序的耗时
+	for i := 0; i < n; i++ {
+		step_times := []int{} // 每个工序所需的时间
+		for j := 0; j < m; j++ {
+			op_time := 0 // 工序耗时
+			fmt.Scan(&op_time)
+			max_time += op_time
+			step_times = append(step_times, op_time)
+		}
+		op_times = append(op_times, step_times)
+	}
+
+	// fmt.Println(m, n, order, op_times)
+
+	machine_timelines := [][]string{} // 每台机器的时间线
+	for i := 0; i < m; i++ {
+		machine_timeline := []string{}
+		for j := 0; j < max_time; j++ {
+			machine_timeline = append(machine_timeline, "") // "" 表示还未安排，"n-m" 表示安排给了第几个工件的第几道工序
+		}
+		machine_timelines = append(machine_timelines, machine_timeline)
+	}
+
+	workpiece_next_moments := []int{} // 每个工件的下一个操作的开始时刻
+	for i := 0; i < n; i++ {
+		workpiece_next_moments = append(workpiece_next_moments, 0)
+	}
+
+	workpiece_finish_steps := []int{} // 每个工件已经完成的工序
+	for i := 0; i < n; i++ {
+		workpiece_finish_steps = append(workpiece_finish_steps, -1)
+	}
+
+	// 开始安排
+	actual_max_time := 0
+	for _, workpiece := range order {
+		// 已经完成的工序
+		last_step := workpiece_finish_steps[workpiece]
+		// 当前要安排的工序
+		current_step := last_step + 1
+		// 当前工序的耗时
+		current_step_time := op_times[workpiece][current_step]
+		// 当前工序的机器号
+		current_step_machine := workpiece_machines[workpiece][current_step]
+		// 对应的机器时间线
+		machine_timeline := machine_timelines[current_step_machine]
+
+		// 当前工序的开始时刻
+		current_step_start_time := workpiece_next_moments[workpiece]
+
+		// 找空档
+		for i := current_step_start_time; i < len(machine_timeline); i++ { // 暂时不用考虑边界？
+			workpiece_next_monent := i + current_step_time
+			if strings.Join(machine_timeline[i:workpiece_next_monent], "") == "" {
+				for j := i; j < workpiece_next_monent; j++ {
+					mark := fmt.Sprintf("%d-%d", workpiece+1, current_step+1)
+					machine_timeline[j] = mark
 				}
-			} else {
-				fmt.Printf("%c", str[i])
+
+				// 找到并且已安排了
+				workpiece_finish_steps[workpiece] = current_step
+				workpiece_next_moments[workpiece] = workpiece_next_monent
+				if workpiece_next_monent > actual_max_time {
+					actual_max_time = workpiece_next_monent
+				}
+				break
 			}
-		} else {
-			fmt.Printf("%c", str[i])
 		}
 	}
-	fmt.Println()
+
+	fmt.Println(actual_max_time)
+
+	// for _, timeline := range machine_timelines {
+	// 	for _, moment := range timeline {
+	// 		if moment == "" {
+	// 			fmt.Print("无 ")
+	// 		} else {
+	// 			fmt.Printf("%s ", moment)
+	// 		}
+	// 	}
+	// 	fmt.Println()
+	// }
 }
 
 func change_direction(d int) int {
