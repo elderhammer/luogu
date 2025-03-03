@@ -5,41 +5,45 @@ import (
 )
 
 func main() {
-	var t int
-	fmt.Scan(&t)
+	var n int
+	fmt.Scan(&n)
 
-	nums := [][2]int{}
-	for i := 0; i < t; i++ {
-		n, a := 0, 0
-		fmt.Scan(&n, &a)
-		nums = append(nums, [2]int{n, a})
+	nums := []int{0, 0} // 0表示不用，1表示用
+
+	sum := 0
+	max_num := 0
+	for i := 2; sum < n; i++ {
+		sum += i
+		nums = append(nums, 1)
+		max_num = i
 	}
 
-	for _, num := range nums {
-		n := num[0]
-		a := num[1]
-
-		result := []int{}
-		result = append(result, 1)
-		for i := 1; i <= n; i++ {
-			j := i
-			b := []int{}
-			for j > 0 {
-				b = append(b, j%10) // 倒序处理似乎更方便，试试看
-				j /= 10
-			}
-			result = apb(&result, &b)
-		}
-
-		count := 0
-		for i := 0; i < len(result); i++ {
-			if result[i] == a {
-				count += 1
-			}
-		}
-
-		fmt.Println(count)
+	if sum == n+1 {
+		nums[2] = 0
+		nums[max_num] = 0
+		nums = append(nums, 1)
+	} else {
+		nums[sum-n] = 0
 	}
+
+	product := []int{1}
+	for num, use := range nums {
+		if use == 1 {
+			fmt.Printf("%d ", num)
+			multiplier := []int{}
+			for num > 0 {
+				multiplier = append(multiplier, num%10)
+				num /= 10
+			}
+			product = apb(&product, &multiplier)
+		}
+	}
+	fmt.Println()
+
+	for i := len(product) - 1; i >= 0; i-- {
+		fmt.Print(product[i])
+	}
+	fmt.Println()
 }
 
 func apb(a *[]int, b *[]int) []int { // 注意，倒序输入，倒序输出
