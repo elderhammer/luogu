@@ -2,42 +2,43 @@ package main
 
 import (
 	"fmt"
+	"math"
 )
 
 func main() {
 	var p int
 	fmt.Scan(&p)
 
-	product := []int{1}
-	for i := 0; i < 1000; i++ {
-		product = apb(&product, &[]int{2})
-	}
-	for i := 0; i < p/1000-1; i++ {
-		product = apb(&product, &product)
-	}
-	for i := 0; i < p%1000; i++ {
-		product = apb(&product, &[]int{2})
-	}
+	// 求位数，利用指数对数的知识
+	fmt.Println(int(math.Log10(2)*float64(p)) + 1)
 
-	// 减1
-	mp := amb(&product, &[]int{1})
+	ans := []int{2}
+	times := []int{1}
 
-	// 位数
-	mp_len := len(mp)
-	fmt.Println(mp_len)
-
-	// 后500位数字
-	if mp_len < 500 {
-		for i := 0; i < 500-mp_len; i++ {
-			mp = append(mp, 0)
+	for p > 0 {
+		if len(ans) > 500 {
+			ans = ans[:500]
 		}
-	} else if mp_len > 500 {
-		mp = mp[:500]
+		if len(times) > 500 {
+			times = times[:500]
+		}
+		if p == 1 {
+			p -= 1
+		} else if p%2 == 1 {
+			times = apb(&times, &ans)
+			p -= 1
+		} else {
+			p /= 2
+			ans = apb(&ans, &ans)
+		}
 	}
+	ans = apb(&ans, &times)
+
+	ans = amb(&ans, &[]int{1})
 
 	j := 0
-	for i := len(mp) - 1; i >= 0; i-- {
-		fmt.Print(mp[i])
+	for i := 499; i >= 0; i-- {
+		fmt.Print(ans[i])
 		j++
 		if j%50 == 0 {
 			fmt.Println()
@@ -105,11 +106,11 @@ func amb(a *[]int, b *[]int) []int {
 	// 校正符号
 	(*a)[len] *= highest_symbol
 
-	return (*a)[:len+1]
+	return (*a)
 }
 
 func apb(a *[]int, b *[]int) []int {
-	c := [100001]int{}
+	c := [1001]int{}
 
 	// 逐位相乘并累加
 	for i := 0; i < len(*a); i++ {
@@ -127,12 +128,12 @@ func apb(a *[]int, b *[]int) []int {
 	}
 
 	// 去掉后面的0
-	len := len(c) - 1
-	for c[len] == 0 && len > 0 {
-		len--
-	}
+	// len := len(c) - 1
+	// for c[len] == 0 && len > 0 {
+	// 	len--
+	// }
 
-	return c[:len+1]
+	return c[:500]
 }
 
 func change_direction(d int) int {
