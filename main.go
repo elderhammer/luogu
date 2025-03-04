@@ -5,54 +5,113 @@ import (
 )
 
 func main() {
-	var n int
-	fmt.Scan(&n)
-
-	nums := []int{0, 0} // 0表示不用，1表示用
-
-	sum := 0
-	max_num := 0
-	for i := 2; sum < n; i++ {
-		sum += i
-		nums = append(nums, 1)
-		max_num = i
-	}
-
-	if sum == n+1 {
-		nums[2] = 0
-		nums[max_num] = 0
-		nums = append(nums, 1)
-	} else {
-		nums[sum-n] = 0
-	}
+	var p int
+	fmt.Scan(&p)
 
 	product := []int{1}
-	for num, use := range nums {
-		if use == 1 {
-			fmt.Printf("%d ", num)
-			multiplier := []int{}
-			for num > 0 {
-				multiplier = append(multiplier, num%10)
-				num /= 10
-			}
-			product = apb(&product, &multiplier)
-		}
+	for i := 0; i < 1000; i++ {
+		product = apb(&product, &[]int{2})
 	}
-	fmt.Println()
+	for i := 0; i < p/1000-1; i++ {
+		product = apb(&product, &product)
+	}
+	for i := 0; i < p%1000; i++ {
+		product = apb(&product, &[]int{2})
+	}
 
-	for i := len(product) - 1; i >= 0; i-- {
-		fmt.Print(product[i])
+	// 减1
+	mp := amb(&product, &[]int{1})
+
+	// 位数
+	mp_len := len(mp)
+	fmt.Println(mp_len)
+
+	// 后500位数字
+	if mp_len < 500 {
+		for i := 0; i < 500-mp_len; i++ {
+			mp = append(mp, 0)
+		}
+	} else if mp_len > 500 {
+		mp = mp[:500]
+	}
+
+	j := 0
+	for i := len(mp) - 1; i >= 0; i-- {
+		fmt.Print(mp[i])
+		j++
+		if j%50 == 0 {
+			fmt.Println()
+		}
 	}
 	fmt.Println()
 }
 
-func apb(a *[]int, b *[]int) []int { // 注意，倒序输入，倒序输出
-	c := []int{}
-	for i := 0; i < len(*a)+len(*b)+1; i++ {
-		c = append(c, 0)
+func amb(a *[]int, b *[]int) []int {
+	// 长度补齐
+	a_len := len(*a)
+	b_len := len(*b)
+	if b_len > a_len {
+		for i := 0; i < b_len-a_len; i++ {
+			(*a) = append((*a), 0)
+		}
 	}
 
-	// 逐位相乘并且累加
+	// 比较最高位
+	a_highest := len(*a) - 1
+	for (*a)[a_highest] == 0 && a_highest > 0 {
+		a_highest--
+	}
+	b_highest := len(*b) - 1
+	for (*b)[b_highest] == 0 && b_highest > 0 {
+		b_highest--
+	}
+
+	highest_symbol := 1
+	if a_highest < b_highest || (a_highest == b_highest && (*a)[a_highest] < (*b)[b_highest]) {
+		tmp := a
+		a = b
+		b = tmp
+		highest_symbol = -1
+	}
+
+	// 逐位减去
+	for i := 0; i < len(*b); i++ {
+		if (*a)[i] >= (*b)[i] {
+			(*a)[i] -= (*b)[i]
+		} else {
+			if i+1 >= len(*a) { // 没法借位了
+				(*a)[i] -= (*b)[i]
+			} else {
+				(*a)[i+1] -= 1
+				(*a)[i] += 10 - (*b)[i]
+			}
+		}
+	}
+
+	// 补位
+	for i := 0; i < len(*a)-1; i++ {
+		if (*a)[i] < 0 {
+			(*a)[i] += 10
+			(*a)[i+1] -= 1
+		}
+	}
+
+	// 去掉前面的0
+	len := len(*a) - 1
+	for (*a)[len] == 0 && len > 0 {
+		len--
+	}
+
+	// 校正符号
+	(*a)[len] *= highest_symbol
+
+	return (*a)[:len+1]
+}
+
+func apb(a *[]int, b *[]int) []int {
+	c := [100001]int{}
+
+	// 逐位相乘并累加
 	for i := 0; i < len(*a); i++ {
 		for j := 0; j < len(*b); j++ {
 			c[i+j] += (*a)[i] * (*b)[j]
@@ -60,13 +119,16 @@ func apb(a *[]int, b *[]int) []int { // 注意，倒序输入，倒序输出
 	}
 
 	// 进位
-	for i := 0; i < len(c)-1; i++ {
-		c[i+1] += (c[i] / 10)
+	for i := 0; i < len(c); i++ {
+		if c[i] > 9 {
+			c[i+1] += c[i] / 10
+		}
 		c[i] = c[i] % 10
 	}
 
+	// 去掉后面的0
 	len := len(c) - 1
-	for len >= 0 && c[len] == 0 {
+	for c[len] == 0 && len > 0 {
 		len--
 	}
 
