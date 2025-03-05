@@ -2,49 +2,152 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
 func main() {
-	var p int
-	fmt.Scan(&p)
+	var (
+		n int
+		m int
+	)
+	fmt.Scan(&n, &m)
+	names := []string{}
+	for i := 0; i < m; i++ {
+		name := ""
+		fmt.Scan(&name)
+		names = append(names, name)
+	}
 
-	// 求位数，利用指数对数的知识
-	fmt.Println(int(math.Log10(2)*float64(p)) + 1)
+	radix_sort_words(&names, 0, len(names)-1, 0)
 
-	ans := []int{2}
-	times := []int{1}
+	fmt.Println(names)
+}
 
-	for p > 0 {
-		if len(ans) > 500 {
-			ans = ans[:500]
+// 注意，[start, end] 是闭区间
+func radix_sort_words(words *[]string, start int, end int, k int) {
+	if start == end {
+		return
+	}
+
+	/* 计数排序 */
+	c := [26]int{}
+
+	// 计数
+	for i := start; i <= end; i++ {
+		kth := "a"[0] // 越界了就当作"a"
+		if k <= len((*words)[i])-1 {
+			kth = (*words)[i][k] // 第k个关键字
 		}
-		if len(times) > 500 {
-			times = times[:500]
+		idx := kth - 'a' // 字母转整数索引
+		c[idx] += 1
+	}
+
+	// 前缀和
+	for i := 0; i < 26-1; i++ {
+		c[i+1] += c[i]
+	}
+
+	// 辅助数组
+	tmp := []string{}
+	for i := start; i <= end; i++ {
+		tmp = append(tmp, "")
+	}
+	// 排序
+	for i := end; i >= start; i-- { // 逆序保证稳定性
+		kth := "a"[0] // 越界了就当作'a'
+		if k <= len((*words)[i])-1 {
+			kth = (*words)[i][k] // 第k个关键字
 		}
-		if p == 1 {
-			p -= 1
-		} else if p%2 == 1 {
-			times = apb(&times, &ans)
-			p -= 1
+		idx := kth - 'a'
+		tmp[c[idx]-1] = (*words)[i] // 注意前缀和是从1开始算的，对应到索引要减1
+		c[idx] -= 1
+	}
+	// 复原
+	for i := start; i <= end; i++ {
+		(*words)[i] = tmp[i-start]
+	}
+
+	// 接着处理第 k+1 个关键字
+	count, new_start := 0, 0
+	var last_alphabet byte = 0
+	for i := start; i <= end; i++ {
+		if k > len((*words)[i])-1 {
+			continue
+		} else if (*words)[i][k] != last_alphabet {
+			// 递归处理
+			if count > 1 { // 关键字数量只有1的跳过
+				radix_sort_words(words, new_start, i-1, k+1)
+			}
+			// 清理状态
+			count, new_start, last_alphabet = 1, i, (*words)[i][k]
 		} else {
-			p /= 2
-			ans = apb(&ans, &ans)
+			count++
 		}
 	}
-	ans = apb(&ans, &times)
+}
 
-	ans = amb(&ans, &[]int{1})
+func counting_sort(nums *[]int) []int {
+	c := [100]int{}
+	// 计数
+	b := []int{}
+	for _, num := range *nums {
+		c[num] += 1
+		b = append(b, 0)
+	}
+	// 计算前缀和
+	for i := 0; i < len(c)-1; i++ {
+		c[i+1] += c[i]
+	}
+	// 前缀和表示相同元素中，排名最后（还未就绪的元素）的位置，即从大到小
+	// 所以要逆序重排
+	for i := len(*nums) - 1; i >= 0; i-- {
+		num := (*nums)[i]
+		pos := c[num] - 1
+		b[pos] = (*nums)[i]
+		c[(*nums)[i]] -= 1
+	}
+	return b
+}
 
-	j := 0
-	for i := 499; i >= 0; i-- {
-		fmt.Print(ans[i])
-		j++
-		if j%50 == 0 {
-			fmt.Println()
+func insertion(nums *[]int) {
+	for i := 1; i < len(*nums); i++ {
+		new_card := (*nums)[i] // 新牌
+		j := i - 1
+		for j >= 0 && (*nums)[j] > new_card { // 直到第一张牌
+			(*nums)[j+1] = (*nums)[j] // 集体后移，保证了稳定性
+			j--
+		}
+		(*nums)[j+1] = new_card // 按牌面放置
+	}
+}
+
+func bubble(nums *[]int) {
+	flag := true // 交换过则为 true
+	for flag {
+		flag = false
+		for i := 0; i < len(*nums)-1; i++ {
+			if (*nums)[i] > (*nums)[i+1] {
+				tmp := (*nums)[i]
+				(*nums)[i] = (*nums)[i+1]
+				(*nums)[i+1] = tmp
+				flag = true
+			}
 		}
 	}
-	fmt.Println()
+}
+
+func selection(nums *[]int) {
+	len := len(*nums)
+	for i := 0; i < len-1; i++ {
+		ith := i
+		for j := i + 1; j < len; j++ {
+			if (*nums)[j] < (*nums)[ith] {
+				ith = j
+			}
+		}
+		tmp := (*nums)[i]
+		(*nums)[i] = (*nums)[ith]
+		(*nums)[ith] = tmp
+	}
 }
 
 func amb(a *[]int, b *[]int) []int {
