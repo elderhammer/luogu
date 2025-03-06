@@ -10,16 +10,70 @@ func main() {
 		m int
 	)
 	fmt.Scan(&n, &m)
-	names := []string{}
+	nums := []int{}
 	for i := 0; i < m; i++ {
-		name := ""
-		fmt.Scan(&name)
-		names = append(names, name)
+		num := 0
+		fmt.Scan(&num)
+		nums = append(nums, num)
 	}
 
-	radix_sort_words(&names, 0, len(names)-1, 0)
+	// quick_sort(&nums, 0, len(nums)-1)
+	quick_sort_iter(&nums)
 
-	fmt.Println(names)
+	fmt.Println(nums)
+}
+
+func quick_sort_iter(nums *[]int) {
+	if len(*nums) == 1 {
+		return
+	}
+	pqs := []int{0, len(*nums) - 1}
+	pointer := 0
+	for {
+		if pointer >= len(pqs) {
+			break
+		}
+
+		p, q := pqs[pointer], pqs[pointer+1]
+		pivot := partition(nums, p, q)
+		if p < pivot-1 {
+			pqs = append(pqs, []int{p, pivot - 1}...)
+		}
+		if pivot+1 < q {
+			pqs = append(pqs, []int{pivot + 1, q}...)
+		}
+
+		pointer += 2
+	}
+}
+
+func quick_sort(nums *[]int, p int, q int) {
+	if p < q {
+		pivot_pos := partition(nums, p, q)
+		quick_sort(nums, p, pivot_pos-1)
+		quick_sort(nums, pivot_pos+1, q)
+	}
+}
+
+// 默认选择第一个元素作为中枢
+// 完成分区后，返回新的中枢
+func partition(nums *[]int, p int, q int) int {
+	pivot := (*nums)[p] // 不单独拿出来的话，会有数据丢失
+	for p < q {
+		// 既然选择了 p 作为中枢（p 的位置空出来了），那就从 q 开始比较
+		for p < q && pivot <= (*nums)[q] {
+			q--
+		}
+		// 以上循环退出了，说明发现了一个比中枢小的值，甚至全部都小于中枢
+		(*nums)[p] = (*nums)[q] // 交换后，q 的位置空出来了
+		for p < q && (*nums)[p] <= pivot {
+			p++
+		}
+		// 以上循环退出了，说明发现了一个比中枢大的值，甚至全部都大于中枢
+		(*nums)[q] = (*nums)[p] // 交换后，p 的位置空出来了
+	}
+	(*nums)[p] = pivot // 将中枢放到 p
+	return p           // 返回新中枢
 }
 
 // 注意，[start, end] 是闭区间
