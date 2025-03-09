@@ -35,16 +35,62 @@ func quick_sort_iter(nums *[]int) {
 		}
 
 		p, q := pqs[pointer], pqs[pointer+1]
-		pivot := partition(nums, p, q)
-		if p < pivot-1 {
-			pqs = append(pqs, []int{p, pivot - 1}...)
+		j, k := partition_v2(nums, p, q)
+		fmt.Println(p, q, j, k)
+		if p < j-1 {
+			pqs = append(pqs, []int{p, j - 1}...)
 		}
-		if pivot+1 < q {
-			pqs = append(pqs, []int{pivot + 1, q}...)
+		if k < q {
+			pqs = append(pqs, []int{k, q}...)
 		}
 
 		pointer += 2
 	}
+}
+
+// 返回 j、k
+func partition_v2(nums *[]int, low int, high int) (int, int) {
+	if high-low == 0 {
+		return low, high
+	}
+	// 三路取中
+	mid := low + (high-low)/2
+	if (*nums)[mid] < (*nums)[low] && (*nums)[low] < (*nums)[high] {
+		// 刚好 low 作为中枢
+	} else if (*nums)[mid] < (*nums)[high] && (*nums)[high] < (*nums)[low] {
+		tmp := (*nums)[low]
+		(*nums)[low] = (*nums)[high]
+		(*nums)[high] = tmp
+	} else {
+		tmp := (*nums)[low]
+		(*nums)[low] = (*nums)[mid]
+		(*nums)[mid] = tmp
+	}
+	pivot := (*nums)[low]
+	j := low
+	i := low + 1
+	k := high + 1 // 注意，是闭区间
+	for i < k {
+		if (*nums)[i] < pivot {
+			tmp := (*nums)[i]
+			(*nums)[i] = (*nums)[j+1]
+			(*nums)[j+1] = tmp
+			j += 1
+			i += 1
+		} else if (*nums)[i] > pivot {
+			tmp := (*nums)[i]
+			(*nums)[i] = (*nums)[k-1]
+			(*nums)[k-1] = tmp
+			k -= 1
+		} else {
+			i += 1
+		}
+	}
+	tmp := (*nums)[low]
+	(*nums)[low] = (*nums)[j]
+	(*nums)[j] = tmp
+
+	return j, k
 }
 
 func quick_sort(nums *[]int, p int, q int) {
